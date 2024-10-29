@@ -98,10 +98,10 @@ void loop()
 {
   Serial.println("Loop Start --------------------------------");
   // NES();
-  //    led.cycle();
+  // led.cycle();
   led.state(GREEN);
 
-  //motorControl.forward();
+  motorControl.forward();
 
   while (leftUltrasonic.read() < 7)
   {
@@ -114,7 +114,7 @@ void loop()
   }
   motorControl.stop();
 
-   sensorsOutput();
+  sensorsOutput();
 
   Serial.println();
 }
