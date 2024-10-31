@@ -5,6 +5,7 @@
 #include "Ultrasonics.h"
 #include "IR.h"
 #include "NESControllerInterface.h"
+#include "Encoders.h"
 
 using namespace mbed;
 
@@ -24,6 +25,9 @@ IR sideLeftIR(LEFT_SIDE);
 IR sideRightIR(RIGHT_SIDE);
 
 LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
+
+Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
+Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
 // NESControllerInterface nes(A6, A3, A2); // GPIO 2,3,4
 
@@ -92,17 +96,21 @@ void setup()
   rightMotor.setup();
   leftUltrasonic.correction();
   rightUltrasonic.correction();
+  leftEncoder.setup();
+  rightEncoder.setup();
 }
 
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
+  motorControl.forward();
+  Serial.print("left revs: ");
+  Serial.println(leftEncoder.getRevA());
   // NES();
   // led.cycle();
+  /*
   led.state(GREEN);
-
   motorControl.forward();
-
   while (leftUltrasonic.read() < 7)
   {
     motorControl.reverse();
@@ -113,8 +121,8 @@ void loop()
     wait_us(STD_DELAY);
   }
   motorControl.stop();
-
-  sensorsOutput();
+*/
+  //sensorsOutput();
 
   Serial.println();
 }
