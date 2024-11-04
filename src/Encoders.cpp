@@ -8,18 +8,26 @@ Encoder::Encoder(PinName pinA, PinName pinB)
 {
 }
 
-void Encoder::setup(void){
-    _pinA.rise(callback(this,&Encoder::countPulseA));
-    _pinB.rise(callback(this,&Encoder::countPulseB));
-     reset();
+void Encoder::setup(void)
+{
+    _pinA.rise(callback(this, &Encoder::countPulseA));
+    _pinB.rise(callback(this, &Encoder::countPulseB));
+    reset();
 }
 
-int Encoder::getRevA(void){
-    return _shaftRevA;
+int Encoder::getForwardDist(void)
+{
+    return convertToDist(_shaftRevA);
 }
 
-int Encoder::getRevB(void){
-    return _shaftRevB;
+int Encoder::getReverseDist(void)
+{
+    return convertToDist(_shaftRevB);
+}
+
+int Encoder::convertToDist(int rev)
+{
+    return (2 * WHEEL_PI * WHEEL_RADIUS * rev);
 }
 
 void Encoder::countPulseA(void)
