@@ -2,5 +2,6 @@
     "files.autoSave": "afterDelay",
     "files.associations": {
         "iterator": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -10,8 +10,6 @@ using namespace mbed;
 #define LEFT_SIDE 0x08
 #define RIGHT_SIDE 0x04
 
-
-
 class IR
 {
 public:

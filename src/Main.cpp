@@ -7,6 +7,7 @@
 #include "NESControllerInterface.h"
 #include "Encoders.h"
 #include "NES.h"
+#include "Adafruit_NeoPixel.h"
 
 using namespace mbed;
 
@@ -30,8 +31,27 @@ LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
 Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
+Adafruit_NeoPixel strip(64, A7, NEO_BGR + NEO_KHZ800);
+
+rtos::Thread thread;
+
 int IROutputList[4] = {0, 0, 0, 0};
 int ultrasonicOutputList[2] = {0, 0};
+
+void sensorThread()
+{
+  while (true)
+  {
+    IROutputList[0] = frontLeftIR.read();
+    IROutputList[1] = frontRightIR.read();
+    IROutputList[2] = sideLeftIR.read();
+    IROutputList[3] = sideRightIR.read();
+
+    ultrasonicOutputList[0] = leftUltrasonic.read();
+    ultrasonicOutputList[1] = rightUltrasonic.read();
+    Serial.println("Thread loop=====================");
+  }
+}
 
 void sensorsOutput()
 {
@@ -64,6 +84,7 @@ void sensorsOutput()
 
 void setup()
 {
+  //thread.start(sensorThread);
   leftMotor.setup();
   rightMotor.setup();
   leftUltrasonic.correction();
@@ -72,26 +93,36 @@ void setup()
   rightEncoder.setup();
   leftEncoder.reset();
   rightEncoder.reset();
+
+  strip.begin();
+  strip.show();
+  strip.setBrightness(32);
 }
 
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
-  wait_us(STD_DELAY);
-  motorControl.forward();
-  wait_us(STD_DELAY);
-  //motorControl.stop();
+
+  for(int i=0;i<65;i++){
+    strip.setPixelColor(i,0,0,255);
+  }
+  strip.show();
+
+  /*
   Serial.print("left dist: ");
   Serial.print(leftEncoder.getForwardDist());
   Serial.println("mm");
   leftEncoder.reset();
   wait_us(STD_DELAY);
+  */
+
   // NES();
   // led.cycle();
-  /*
+
   led.state(GREEN);
-  motorControl.forward();
-  while (leftUltrasonic.read() < 7)
+  //motorControl.forward();
+  /*
+  while (ultrasonicOutputList[0] < 7)
   {
     motorControl.reverse();
     led.state(RED);
@@ -101,7 +132,7 @@ void loop()
     wait_us(STD_DELAY);
   }
   motorControl.stop();
-*/
+  */
   //sensorsOutput();
 
   Serial.println();
