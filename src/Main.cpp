@@ -35,8 +35,8 @@ Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
-                                               NEO_TILE_TOP + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
-                                               NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
+                                               NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_COLUMNS + NEO_TILE_ZIGZAG +
+                                               NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
                                                NEO_BGR + NEO_KHZ800);
 
 
@@ -110,8 +110,6 @@ void setup()
   leftEncoder.reset();
   rightEncoder.reset();
 
-  // matrixSetup(matrix);
-
   matrix.begin();
   matrix.show();
   matrix.setTextWrap(false);
@@ -123,55 +121,20 @@ void setup()
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
-  
-  //matrix.fillScreen(matrix.Color(255,0,0));
-  //matrix.show();
-  
-  // printScroll(matrix, "aaaaabbbb", x);
 
- 
-  //matrix.drawLine(1,0,1,16,matrix.Color(255,0,0));
-  //matrix.drawLine(0,1,16,1,matrix.Color(255,0,0));
-  //matrix.drawLine(1,0,16,10,matrix.Color(255,0,0));
-  //matrix.drawCircle(8,8,6,matrix.Color(0,255,0));
+  led.state(GREEN);
+
   matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(255,255,255));
-  matrix.drawPixel(0,0,matrix.Color(255,0,0));
+  matrix.drawPixel(15,1,matrix.Color(255,0,0));
   matrix.show();
-/*
-  matrix.setCursor(x, 0);
-  matrix.print(F("abcd"));
-  if (--x < -36)
-  {
-    x = matrix.width();
-  }
-  matrix.show();
-  wait_us(200000);
-*/
-  /*
+
   Serial.print("left dist: ");
   Serial.print(leftEncoder.getForwardDist());
   Serial.println("mm");
-  leftEncoder.reset();
   wait_us(STD_DELAY);
-  */
 
-  // NES();
-  // led.cycle();
-
-  led.state(GREEN);
-  // motorControl.forward();
-  /*
-  while (ultrasonicOutputList[0] < 7)
-  {
-    motorControl.reverse();
-    led.state(RED);
-    wait_us(STD_DELAY);
-    motorControl.rotateClockwise();
-    led.state(BLUE);
-    wait_us(STD_DELAY);
-  }
-  motorControl.stop();
-  */
+  motorControl.forward();
+ 
   // sensorsOutput();
 
   Serial.println();

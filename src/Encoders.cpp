@@ -12,7 +12,7 @@ void Encoder::setup(void)
 {
     _pinA.rise(callback(this, &Encoder::countPulseA));
     _pinB.rise(callback(this, &Encoder::countPulseB));
-    reset();
+    //reset();
 }
 
 int Encoder::getForwardDist(void)
