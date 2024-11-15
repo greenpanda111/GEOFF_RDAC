@@ -1,5 +1,8 @@
 #include "mbed.h"
 #include "Arduino.h"
+#include "Adafruit_NeoPixel.h"
+#include "Adafruit_NeoMatrix.h"
+#include "Adafruit_GFX.h"
 #include "MotorController.h"
 #include "LED.h"
 #include "Ultrasonics.h"
@@ -7,7 +10,7 @@
 #include "NESControllerInterface.h"
 #include "Encoders.h"
 #include "NES.h"
-#include "Adafruit_NeoPixel.h"
+#include "Neopixel.h"
 
 using namespace mbed;
 
@@ -31,7 +34,20 @@ LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
 Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
-Adafruit_NeoPixel strip(64, A7, NEO_BGR + NEO_KHZ800);
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
+                                               NEO_TILE_TOP + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
+                                               NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
+                                               NEO_BGR + NEO_KHZ800);
+
+
+const unsigned char PROGMEM bitmap[] ={
+
+     0xff, 0xff, 0x9e, 0x19, 0x90, 0x11, 0x90, 0x71, 0x80, 0x1, 0x80, 0x1, 
+  0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x86, 0x71, 0x90, 0x41, 
+  0x90, 0x41, 0x90, 0x41, 0x93, 0x41, 0xff, 0xff, 
+};
+
+int x = matrix.width();
 
 rtos::Thread thread;
 
@@ -84,7 +100,7 @@ void sensorsOutput()
 
 void setup()
 {
-  //thread.start(sensorThread);
+  // thread.start(sensorThread);
   leftMotor.setup();
   rightMotor.setup();
   leftUltrasonic.correction();
@@ -94,20 +110,43 @@ void setup()
   leftEncoder.reset();
   rightEncoder.reset();
 
-  strip.begin();
-  strip.show();
-  strip.setBrightness(32);
+  // matrixSetup(matrix);
+
+  matrix.begin();
+  matrix.show();
+  matrix.setTextWrap(false);
+  matrix.setBrightness(20);
+  matrix.setTextColor(matrix.Color(0, 0, 255));
+  matrix.setCursor(0, 0);
 }
 
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
+  
+  //matrix.fillScreen(matrix.Color(255,0,0));
+  //matrix.show();
+  
+  // printScroll(matrix, "aaaaabbbb", x);
 
-  for(int i=0;i<65;i++){
-    strip.setPixelColor(i,0,0,255);
+ 
+  //matrix.drawLine(1,0,1,16,matrix.Color(255,0,0));
+  //matrix.drawLine(0,1,16,1,matrix.Color(255,0,0));
+  //matrix.drawLine(1,0,16,10,matrix.Color(255,0,0));
+  //matrix.drawCircle(8,8,6,matrix.Color(0,255,0));
+  matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(255,255,255));
+  matrix.drawPixel(0,0,matrix.Color(255,0,0));
+  matrix.show();
+/*
+  matrix.setCursor(x, 0);
+  matrix.print(F("abcd"));
+  if (--x < -36)
+  {
+    x = matrix.width();
   }
-  strip.show();
-
+  matrix.show();
+  wait_us(200000);
+*/
   /*
   Serial.print("left dist: ");
   Serial.print(leftEncoder.getForwardDist());
@@ -120,7 +159,7 @@ void loop()
   // led.cycle();
 
   led.state(GREEN);
-  //motorControl.forward();
+  // motorControl.forward();
   /*
   while (ultrasonicOutputList[0] < 7)
   {
@@ -133,7 +172,7 @@ void loop()
   }
   motorControl.stop();
   */
-  //sensorsOutput();
+  // sensorsOutput();
 
   Serial.println();
 }

@@ -1,21 +1,34 @@
 #include "mbed.h"
 #include "Adafruit_Neopixel.h"
-//#include "Adafruit_GFX.h"
-//#include "Adafruit_NeoMatrix.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_NeoMatrix.h"
 #include "Neopixel.h"
 
 using namespace mbed;
 
-/*
-void constructMatrix(void){
-  Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, A7,
-  NEO_MATRIX_TOP + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
-  NEO_BGR + NEO_KHZ800);
+void matrixSetup(Adafruit_NeoMatrix matrix)
+{
+
+  const uint16_t colors[] = {
+      matrix.Color(255, 0, 0), matrix.Color(0, 255, 0), matrix.Color(0, 0, 255)};
 
   matrix.begin();
   matrix.show();
-  for (int i=0; i<65; i++){
-    matrix.setPixelColor(i, 255,0,0);
-  }
+  matrix.setTextWrap(false);
+  matrix.setBrightness(30);
+  matrix.setTextColor(colors[2]);
+  matrix.setCursor(0, 0);
 }
-*/
+
+void printScroll(Adafruit_NeoMatrix matrix, const char *text, int x)
+{
+  matrix.fillScreen(0);
+  matrix.setCursor(x, 0);
+  matrix.print(F(text));
+  if (--x < -36)
+  {
+    x = matrix.width();
+  }
+  matrix.show();
+  wait_us(200000);
+}
