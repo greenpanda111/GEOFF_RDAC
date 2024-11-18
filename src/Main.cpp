@@ -11,10 +11,11 @@
 #include "Encoders.h"
 #include "NES.h"
 #include "Neopixel.h"
+#include "rtos.h"
 
 using namespace mbed;
 
-#define STD_DELAY 830000
+#define STD_DELAY 1000000
 
 Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction);
 Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction);
@@ -35,8 +36,8 @@ Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
-                                               NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_COLUMNS + NEO_TILE_ZIGZAG +
-                                               NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
+                                               NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
+                                               NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
                                                NEO_BGR + NEO_KHZ800);
 
 
@@ -49,11 +50,21 @@ const unsigned char PROGMEM bitmap[] ={
 
 int x = matrix.width();
 
-rtos::Thread thread;
+//rtos::Thread sensorThread;
+rtos::Thread blinkLEDThread;
 
 int IROutputList[4] = {0, 0, 0, 0};
 int ultrasonicOutputList[2] = {0, 0};
 
+void blinkLED(){
+  while(1){
+  matrix.drawPixel(1,14,matrix.Color(255,0,0));
+  rtos::ThisThread::sleep_for(1000);
+  matrix.drawPixel(1,14,matrix.Color(0,0,0));
+  rtos::ThisThread::sleep_for(1000);
+  }
+}
+/*
 void sensorThread()
 {
   while (true)
@@ -65,9 +76,9 @@ void sensorThread()
 
     ultrasonicOutputList[0] = leftUltrasonic.read();
     ultrasonicOutputList[1] = rightUltrasonic.read();
-    Serial.println("Thread loop=====================");
   }
 }
+*/
 
 void sensorsOutput()
 {
@@ -101,6 +112,7 @@ void sensorsOutput()
 void setup()
 {
   // thread.start(sensorThread);
+  blinkLEDThread.start(blinkLED);
   leftMotor.setup();
   rightMotor.setup();
   leftUltrasonic.correction();
@@ -110,12 +122,20 @@ void setup()
   leftEncoder.reset();
   rightEncoder.reset();
 
+  motorControl.stop();
+
   matrix.begin();
   matrix.show();
   matrix.setTextWrap(false);
-  matrix.setBrightness(20);
+  matrix.setBrightness(10);
   matrix.setTextColor(matrix.Color(0, 0, 255));
   matrix.setCursor(0, 0);
+  matrix.show();
+
+  motorControl.reverse();
+  wait_us(STD_DELAY);
+  motorControl.stop();
+
 }
 
 void loop()
@@ -123,19 +143,24 @@ void loop()
   Serial.println("Loop Start --------------------------------");
 
   led.state(GREEN);
+  //matrix.setBrightness(100);
+ //matrix.fillScreen(matrix.Color(255,255,255));
 
-  matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(255,255,255));
-  matrix.drawPixel(15,1,matrix.Color(255,0,0));
+ matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
+  matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
   Serial.print("left dist: ");
   Serial.print(leftEncoder.getForwardDist());
   Serial.println("mm");
+  Serial.print("right dist: ");
+  Serial.print(rightEncoder.getForwardDist());
+  Serial.println("mm");
+  
   wait_us(STD_DELAY);
 
-  motorControl.forward();
- 
   // sensorsOutput();
+  
 
   Serial.println();
 }

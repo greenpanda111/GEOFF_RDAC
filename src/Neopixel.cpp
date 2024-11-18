@@ -22,7 +22,7 @@ void matrixSetup(Adafruit_NeoMatrix matrix)
 
 void printScroll(Adafruit_NeoMatrix matrix, const char *text, int x)
 {
-  matrix.fillScreen(0);
+  matrix.fillScreen(matrix.Color(0,0,0));
   matrix.setCursor(x, 0);
   matrix.print(F(text));
   if (--x < -36)
