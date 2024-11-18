@@ -19,21 +19,17 @@ class Encoder
 {
 public:
     Encoder(PinName pinA, PinName pinB);
-    void reset(void);
-    int getForwardDist(void);
-  
     void setup(void);
+    void reset(void);
+    int getDistance(void);
 
 private:
-    void countPulseA(void);
- 
-    int convertToDist(int);
+    void countPulse(void);
 
     InterruptIn _pinA;
     InterruptIn _pinB;
 
     volatile long int _count;
-   
 };
 
 extern Encoder encoder;

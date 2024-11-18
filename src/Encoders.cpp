@@ -10,15 +10,15 @@ Encoder::Encoder(PinName pinA, PinName pinB)
 
 void Encoder::setup(void)
 {
-    _pinA.rise(callback(this, &Encoder::countPulseA));
+    _pinA.rise(callback(this, &Encoder::countPulse));
 }
 
-int Encoder::getForwardDist(void)
+int Encoder::getDistance(void)
 {
     //converts count to distance in mm
     return ((int)((WHEEL_PI * WHEEL_RADIUS * _count) / STEP_CONVERSION)) << 1;
 }
-void Encoder::countPulseA(void)
+void Encoder::countPulse(void)
 {
     if (_pinA != _pinB)
     {

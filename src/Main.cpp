@@ -12,6 +12,7 @@
 #include "NES.h"
 #include "Neopixel.h"
 #include "rtos.h"
+#include "Bumpers.h"
 
 using namespace mbed;
 
@@ -30,7 +31,9 @@ IR frontRightIR(RIGHT_FRONT);
 IR sideLeftIR(LEFT_SIDE);
 IR sideRightIR(RIGHT_SIDE);
 
-LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
+//LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
+Bumper bumper(GPIO_PIN_2, GPIO_PIN_3);
+
 
 Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
@@ -78,8 +81,8 @@ void sensorThread()
     ultrasonicOutputList[1] = rightUltrasonic.read();
   }
 }
-*/
 
+*/
 void sensorsOutput()
 {
 
@@ -111,7 +114,7 @@ void sensorsOutput()
 
 void setup()
 {
-  // thread.start(sensorThread);
+  //sensorThread.start(sensorThread);
   blinkLEDThread.start(blinkLED);
   leftMotor.setup();
   rightMotor.setup();
@@ -121,8 +124,8 @@ void setup()
   rightEncoder.setup();
   leftEncoder.reset();
   rightEncoder.reset();
+  bumper.setup();
 
-  motorControl.stop();
 
   matrix.begin();
   matrix.show();
@@ -131,36 +134,26 @@ void setup()
   matrix.setTextColor(matrix.Color(0, 0, 255));
   matrix.setCursor(0, 0);
   matrix.show();
-
-  motorControl.reverse();
-  wait_us(STD_DELAY);
-  motorControl.stop();
-
 }
 
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
 
-  led.state(GREEN);
-  //matrix.setBrightness(100);
- //matrix.fillScreen(matrix.Color(255,255,255));
-
- matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
+  matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
   Serial.print("left dist: ");
-  Serial.print(leftEncoder.getForwardDist());
+  Serial.print(leftEncoder.getDistance());
   Serial.println("mm");
   Serial.print("right dist: ");
-  Serial.print(rightEncoder.getForwardDist());
+  Serial.print(rightEncoder.getDistance());
   Serial.println("mm");
   
   wait_us(STD_DELAY);
 
   // sensorsOutput();
   
-
   Serial.println();
 }
