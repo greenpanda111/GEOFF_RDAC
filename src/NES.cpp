@@ -24,12 +24,12 @@ void detectInput(void)
     }
     if (input.buttonLeft == true)
     {
-        motorControl.rotateCounterClockwise();
+        motorControl.rotate(-5);
         wait_us(STD_DELAY * 0.01);
     }
     if (input.buttonRight == true)
     {
-        motorControl.rotateClockwise();
+        motorControl.rotate(5);
         wait_us(STD_DELAY * 0.01);
     }
     motorControl.stop();

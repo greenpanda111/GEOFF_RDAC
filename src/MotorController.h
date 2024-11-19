@@ -21,14 +21,19 @@ public:
   MotorController(Motor &leftMotor, Motor &rightMotor);
   void forward(int distance);
   void reverse(int distance);
-  void rotateClockwise();
-  void rotateCounterClockwise();
+  void rotate(int angle);
   void stop();
   void setup();
+  int getCurrentAngle();
+  void setCurrentAngle(int angle);
+  
 private:
   Motor &_leftMotor;
   Motor &_rightMotor;
+  float arcLength(float angle);
+  void updateCurrentAngle(int angleChange);
   float _pwr;
+  int _currentAngle;
 };
 extern MotorController motorControl;
 #endif

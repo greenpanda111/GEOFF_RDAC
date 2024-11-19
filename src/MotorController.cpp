@@ -21,6 +21,15 @@ void MotorController::setup()
   _leftEncoder.setup();
   _rightEncoder.setup();
   _pwr = Default_Power;
+  _currentAngle = 0;
+}
+int MotorController::getCurrentAngle()
+{
+  return _currentAngle;
+}
+void MotorController::setCurrentAngle(int angle)
+{
+  _currentAngle = angle;
 }
 void MotorController::forward(int distance)
 {
@@ -42,30 +51,59 @@ void MotorController::reverse(int distance)
 {
 
   _leftEncoder.reset();
-  while (_leftEncoder.getDistance() > distance)
+  while (_leftEncoder.getDistance() > -distance)
   {
     Serial.print("encoder Dist: ");
     Serial.println(_leftEncoder.getDistance());
 
-    _leftMotor.move(Right_Forward, _pwr);
-    _rightMotor.move(Left_Forward, _pwr);
+    _leftMotor.move(!Right_Forward, _pwr);
+    _rightMotor.move(!Left_Forward, _pwr);
   }
   _leftMotor.stop();
   _rightMotor.stop();
 }
 
-void MotorController::rotateClockwise()
+void MotorController::rotate(int angle)
 {
-  _leftMotor.move(Left_Forward, _pwr);
-  _rightMotor.move(Left_Forward, _pwr);
+  _leftEncoder.reset();
+  
+  if (angle>0){
+  while (-_leftEncoder.getDistance() < arcLength(angle))
+  {
+    Serial.print(_leftEncoder.getDistance());
+    Serial.print(" of ");
+    Serial.println(arcLength(angle));
+    _leftMotor.move(Left_Forward, _pwr);
+    _rightMotor.move(!Right_Forward, _pwr);
+  }
+  }
+  else{
+     while (_leftEncoder.getDistance() > -arcLength(angle))
+  {
+    _leftMotor.move(!Left_Forward, _pwr);
+    _rightMotor.move(Right_Forward, _pwr);
+  }
+  }
+  _leftMotor.stop();
+  _rightMotor.stop();
+  updateCurrentAngle(angle);
+
 }
 
-void MotorController::rotateCounterClockwise()
-{
-  _leftMotor.move(Right_Forward, _pwr);
-  _rightMotor.move(Right_Forward, _pwr);
-}
 
+float MotorController::arcLength(float angle)
+{
+  float arcLength = (2 * 3.14 * 48*(angle / 360));
+  return arcLength;
+}
+void MotorController::updateCurrentAngle(int angleChange)
+{
+  _currentAngle += angleChange;
+  if (_currentAngle > 360)
+  {
+    _currentAngle = _currentAngle - 360;
+  }
+}
 void MotorController::stop()
 {
   _leftMotor.move(Left_Forward, 0.0f);

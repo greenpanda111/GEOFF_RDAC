@@ -136,19 +136,8 @@ void loop()
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
-  motorControl.reverse(100);
-
-/*
-  Serial.print("left dist: ");
-  Serial.print(leftEncoder.getDistance());
-  Serial.println("mm");
-  Serial.print("right dist: ");
-  Serial.print(rightEncoder.getDistance());
-  Serial.println("mm");
-  */
+  motorControl.rotate(90);
   wait_us(STD_DELAY);
 
-  // sensorsOutput();
-  
   Serial.println();
 }
