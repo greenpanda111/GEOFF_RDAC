@@ -14,11 +14,6 @@ void Bumper::setup(){
 }
 
 void Bumper::avoid(){
-    Serial.println("avoiding");
-    motorControl.reverse();
-    wait_us(500000);
-    motorControl.stop();
+    motorControl.reverse(100);
     motorControl.rotateClockwise();
-    wait_us(830000);
-    motorControl.stop();
 }

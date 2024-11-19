@@ -1,3 +1,6 @@
+
+#ifndef Bumpers_h
+#define Bumpers_h
 #include "mbed.h"
 #include "Arduino.h"
 using namespace mbed;
@@ -18,3 +21,5 @@ private:
 };
 
 extern Bumper bumper;
+
+#endif

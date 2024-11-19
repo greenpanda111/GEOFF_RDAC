@@ -34,10 +34,6 @@ IR sideRightIR(RIGHT_SIDE);
 //LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
 Bumper bumper(GPIO_PIN_2, GPIO_PIN_3);
 
-
-Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
-Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
-
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
                                                NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
                                                NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
@@ -120,12 +116,8 @@ void setup()
   rightMotor.setup();
   leftUltrasonic.correction();
   rightUltrasonic.correction();
-  leftEncoder.setup();
-  rightEncoder.setup();
-  leftEncoder.reset();
-  rightEncoder.reset();
   bumper.setup();
-
+  motorControl.setup();
 
   matrix.begin();
   matrix.show();
@@ -144,13 +136,16 @@ void loop()
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
+  motorControl.reverse(100);
+
+/*
   Serial.print("left dist: ");
   Serial.print(leftEncoder.getDistance());
   Serial.println("mm");
   Serial.print("right dist: ");
   Serial.print(rightEncoder.getDistance());
   Serial.println("mm");
-  
+  */
   wait_us(STD_DELAY);
 
   // sensorsOutput();

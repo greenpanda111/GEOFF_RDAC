@@ -11,6 +11,8 @@ Encoder::Encoder(PinName pinA, PinName pinB)
 void Encoder::setup(void)
 {
     _pinA.rise(callback(this, &Encoder::countPulse));
+    reset();
+    Serial.println("setup");
 }
 
 int Encoder::getDistance(void)
