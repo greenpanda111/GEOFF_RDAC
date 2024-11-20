@@ -7,11 +7,14 @@
 
 using namespace mbed;
 
+#define LEFT_FORDWARD 1
+#define RIGHT_FORWARD 0
+
 Encoder _leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder _rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
-Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction);
-Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction);
+Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORDWARD);
+Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD);
 
 MotorController motorControl(leftMotor, rightMotor);
 
@@ -32,73 +35,73 @@ int MotorController::getCurrentAngle()
 {
   return _currentAngle;
 }
-void MotorController::setCurrentAngle(int angle)
-{
-  _currentAngle = angle;
-}
-void MotorController::forward(int distance)
+
+void MotorController::forwardDist(int distance)
 {
 
   _leftEncoder.reset();
   while (_leftEncoder.getDistance() < distance)
   {
-    Serial.print("encoder Dist: ");
-    Serial.println(_leftEncoder.getDistance());
-
-    _leftMotor.move(Right_Forward, _pwr);
-    _rightMotor.move(Left_Forward, _pwr);
+    _leftMotor.move(RIGHT_FORWARD);
+    _rightMotor.move(LEFT_FORDWARD);
   }
   _leftMotor.stop();
   _rightMotor.stop();
 }
 
-void MotorController::reverse(int distance)
+void MotorController::reverseDist(int distance)
 {
 
   _leftEncoder.reset();
   while (_leftEncoder.getDistance() > -distance)
   {
-    Serial.print("encoder Dist: ");
-    Serial.println(_leftEncoder.getDistance());
-
-    _leftMotor.move(!Right_Forward, _pwr);
-    _rightMotor.move(!Left_Forward, _pwr);
+    _leftMotor.move(!RIGHT_FORWARD);
+    _rightMotor.move(!LEFT_FORDWARD);
   }
   _leftMotor.stop();
   _rightMotor.stop();
+}
+
+void MotorController::forwardVelocity(int velocity)
+{
+  _leftMotor.setTargetVelocity(velocity);
+  _rightMotor.setTargetVelocity(velocity);
+}
+
+void MotorController::reverseVelocity(int velocity)
+{
+  _leftMotor.setTargetVelocity(velocity);
+  _rightMotor.setTargetVelocity(velocity);
 }
 
 void MotorController::rotate(int angle)
 {
   _leftEncoder.reset();
-  
-  if (angle>0){
-  while (-_leftEncoder.getDistance() < arcLength(angle))
+
+  if (angle > 0)
   {
-    Serial.print(_leftEncoder.getDistance());
-    Serial.print(" of ");
-    Serial.println(arcLength(angle));
-    _leftMotor.move(Left_Forward, _pwr);
-    _rightMotor.move(!Right_Forward, _pwr);
+    while (-_leftEncoder.getDistance() < arcLength(angle))
+    {
+      _leftMotor.move(LEFT_FORDWARD);
+      _rightMotor.move(!RIGHT_FORWARD);
+    }
   }
-  }
-  else{
-     while (_leftEncoder.getDistance() > -arcLength(angle))
+  else
   {
-    _leftMotor.move(!Left_Forward, _pwr);
-    _rightMotor.move(Right_Forward, _pwr);
-  }
+    while (_leftEncoder.getDistance() > -arcLength(angle))
+    {
+      _leftMotor.move(!LEFT_FORDWARD);
+      _rightMotor.move(RIGHT_FORWARD);
+    }
   }
   _leftMotor.stop();
   _rightMotor.stop();
   updateCurrentAngle(angle);
-
 }
-
 
 float MotorController::arcLength(float angle)
 {
-  float arcLength = (2 * 3.14 * 48*(angle / 360));
+  float arcLength = (2 * 3.14 * 44 * (angle / 360));
   return arcLength;
 }
 void MotorController::updateCurrentAngle(int angleChange)
@@ -111,6 +114,6 @@ void MotorController::updateCurrentAngle(int angleChange)
 }
 void MotorController::stop()
 {
-  _leftMotor.move(Left_Forward, 0.0f);
-  _rightMotor.move(Right_Forward, 0.0f);
+  _leftMotor.stop();
+  _rightMotor.stop();
 }

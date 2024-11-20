@@ -14,12 +14,12 @@ void detectInput(void)
 
     if (input.buttonUp == true)
     {
-        motorControl.reverse(10);
+        motorControl.reverseDist(10);
         wait_us(DELAY * 0.01);
     }
     if (input.buttonDown == true)
     {
-        motorControl.forward(10);
+        motorControl.forwardDist(10);
         wait_us(DELAY * 0.01);
     }
     if (input.buttonLeft == true)

@@ -130,7 +130,11 @@ void loop()
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
+  Serial.print("current angle: ");
+  Serial.println(motorControl.getCurrentAngle());
+  motorControl.forwardDist(100);
   motorControl.rotate(90);
+  
   wait_us(STD_DELAY);
 
   Serial.println();

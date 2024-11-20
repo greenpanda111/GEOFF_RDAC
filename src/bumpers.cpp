@@ -14,6 +14,6 @@ void Bumper::setup(){
 }
 
 void Bumper::avoid(){
-    motorControl.reverse(100);
+    motorControl.reverseDist(100);
     motorControl.rotate(90);
 }

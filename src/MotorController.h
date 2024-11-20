@@ -8,28 +8,28 @@
 
 using namespace mbed;
 
-#define Left_Forward 1
-#define Right_Forward 0
-
 #define LEFT_ENCODER_A P1_11
 #define LEFT_ENCODER_B P1_15
 #define RIGHT_ENCODER_A P1_12
 #define RIGHT_ENCODER_B P1_14
 
-class MotorController {
+class MotorController
+{
 public:
   MotorController(Motor &leftMotor, Motor &rightMotor);
-  void forward(int distance);
-  void reverse(int distance);
+  void forwardDist(int distance);
+  void reverseDist(int distance);
+  void forwardVelocity(int velocity);
+  void reverseVelocity(int velocity);
   void rotate(int angle);
   void stop();
   void setup();
   int getCurrentAngle();
-  void setCurrentAngle(int angle);
-  
+
 private:
   Motor &_leftMotor;
   Motor &_rightMotor;
+  bool _forwardDirection;
   float arcLength(float angle);
   void updateCurrentAngle(int angleChange);
   float _pwr;
