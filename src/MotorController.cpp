@@ -10,6 +10,11 @@ using namespace mbed;
 Encoder _leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder _rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
+Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction);
+Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction);
+
+MotorController motorControl(leftMotor, rightMotor);
+
 MotorController::MotorController(Motor &leftMotor, Motor &rightMotor)
     : _leftMotor(leftMotor), _rightMotor(rightMotor)
 {
@@ -109,6 +114,3 @@ void MotorController::stop()
   _leftMotor.move(Left_Forward, 0.0f);
   _rightMotor.move(Right_Forward, 0.0f);
 }
-
-extern Encoder _leftEncoder;
-extern Encoder _rightEncoder;

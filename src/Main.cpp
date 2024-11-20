@@ -18,11 +18,6 @@ using namespace mbed;
 
 #define STD_DELAY 1000000
 
-Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction);
-Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction);
-
-MotorController motorControl(leftMotor, rightMotor);
-
 Ultrasonic leftUltrasonic(LEFT_ULTRASONIC_SENSOR_PIN);
 Ultrasonic rightUltrasonic(RIGHT_ULTRASONIC_SENSOR_PIN);
 
@@ -31,7 +26,6 @@ IR frontRightIR(RIGHT_FRONT);
 IR sideLeftIR(LEFT_SIDE);
 IR sideRightIR(RIGHT_SIDE);
 
-//LED led(GPIO_PIN_2, GPIO_PIN_3, GPIO_PIN_4);
 Bumper bumper(GPIO_PIN_2, GPIO_PIN_3);
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,

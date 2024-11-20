@@ -11,7 +11,7 @@ using namespace mbed;
 #define NES_PIN_2 A3
 #define NES_PIN_3 A2
 
-#define STD_DELAY 830000
+#define DELAY 830000
 
 void detectInput(void);
 
