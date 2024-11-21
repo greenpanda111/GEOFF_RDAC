@@ -24,6 +24,7 @@ public:
   void stop();
   void setup();
   int getCurrentAngle();
+  void setStuck(bool status);
 
 private:
   Motor &_leftMotor;
@@ -31,8 +32,9 @@ private:
   bool _forwardDirection;
   float arcLength(float angle);
   void updateCurrentAngle(int angleChange);
-  float _pwr;
+  void avoid(void);
   int _currentAngle;
+  bool _stuck;
 };
 extern MotorController motorControl;
 #endif

@@ -13,9 +13,9 @@ class Bumper
 public:
     Bumper(PinName left, PinName right);
     void setup(void);
-
-private:
     void avoid(void);
+private:
+    
     InterruptIn _left;
     InterruptIn _right;
 };

@@ -26,7 +26,7 @@ IR frontRightIR(RIGHT_FRONT);
 IR sideLeftIR(LEFT_SIDE);
 IR sideRightIR(RIGHT_SIDE);
 
-Bumper bumper(GPIO_PIN_2, GPIO_PIN_3);
+Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
 
 Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
                                                NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
@@ -128,15 +128,14 @@ void loop()
 
   matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
-  //matrix.fillScreen(matrix.Color(255,255,255));
   matrix.show();
 
-  Serial.print("current angle: ");
-  Serial.println(motorControl.getCurrentAngle());
-  
-  //motorControl.forwardDist(100);
-  motorControl.rotate(90);
-  
+  motorControl.forwardDist(100);
+  //motorControl.rotate(90);
+  //motorControl.reverseDist(100);
+
+   //Serial.print("current velocity: ");
+  //Serial.println(leftMotor.getCurrentVelocity());
   wait_us(STD_DELAY);
 
   Serial.println();
