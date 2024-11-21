@@ -116,7 +116,7 @@ void setup()
   matrix.begin();
   matrix.show();
   matrix.setTextWrap(false);
-  matrix.setBrightness(10);
+  matrix.setBrightness(20);
   matrix.setTextColor(matrix.Color(0, 0, 255));
   matrix.setCursor(0, 0);
   matrix.show();
@@ -128,11 +128,13 @@ void loop()
 
   matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
+  //matrix.fillScreen(matrix.Color(255,255,255));
   matrix.show();
 
   Serial.print("current angle: ");
   Serial.println(motorControl.getCurrentAngle());
-  motorControl.forwardDist(100);
+  
+  //motorControl.forwardDist(100);
   motorControl.rotate(90);
   
   wait_us(STD_DELAY);

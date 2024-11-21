@@ -4,14 +4,13 @@
 #include "Arduino.h"
 #include "MotorClass.h"
 #include "mbed.h"
-#include "Encoders.h"
-
-using namespace mbed;
 
 #define LEFT_ENCODER_A P1_11
 #define LEFT_ENCODER_B P1_15
 #define RIGHT_ENCODER_A P1_12
 #define RIGHT_ENCODER_B P1_14
+
+using namespace mbed;
 
 class MotorController
 {

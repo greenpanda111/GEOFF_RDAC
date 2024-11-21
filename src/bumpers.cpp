@@ -14,6 +14,7 @@ void Bumper::setup(){
 }
 
 void Bumper::avoid(){
+    Serial.println("avoiding");
     motorControl.reverseDist(100);
     motorControl.rotate(90);
 }

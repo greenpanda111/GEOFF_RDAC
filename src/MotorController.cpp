@@ -3,18 +3,19 @@
 #include "MotorClass.h"
 #include "MotorController.h"
 #include "mbed.h"
-#include "Encoders.h"
 
 using namespace mbed;
 
-#define LEFT_FORDWARD 1
-#define RIGHT_FORWARD 0
+#define LEFT_FORWARD -0.5
+#define RIGHT_FORWARD 0.5
+#define LEFT_REVERSE 0.5
+#define RIGHT_REVERSE -0.5
 
-Encoder _leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
-Encoder _rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
+Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
+Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
-Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORDWARD);
-Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD);
+Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORWARD, leftEncoder);
+Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD, rightEncoder);
 
 MotorController motorControl(leftMotor, rightMotor);
 
@@ -26,8 +27,7 @@ void MotorController::setup()
 {
   _leftMotor.setup();
   _rightMotor.setup();
-  _leftEncoder.setup();
-  _rightEncoder.setup();
+
   _pwr = Default_Power;
   _currentAngle = 0;
 }
@@ -38,12 +38,11 @@ int MotorController::getCurrentAngle()
 
 void MotorController::forwardDist(int distance)
 {
-
-  _leftEncoder.reset();
-  while (_leftEncoder.getDistance() < distance)
+  leftMotor.resetEcoder();
+  while (leftMotor.getEncoderDist() <= distance)
   {
-    _leftMotor.move(RIGHT_FORWARD);
-    _rightMotor.move(LEFT_FORDWARD);
+    _leftMotor.move(LEFT_FORWARD);
+    _rightMotor.move(RIGHT_FORWARD);
   }
   _leftMotor.stop();
   _rightMotor.stop();
@@ -51,12 +50,12 @@ void MotorController::forwardDist(int distance)
 
 void MotorController::reverseDist(int distance)
 {
+  leftMotor.resetEcoder();
 
-  _leftEncoder.reset();
-  while (_leftEncoder.getDistance() > -distance)
+  while (leftMotor.getEncoderDist() >= -distance)
   {
-    _leftMotor.move(!RIGHT_FORWARD);
-    _rightMotor.move(!LEFT_FORDWARD);
+    _leftMotor.move(!LEFT_FORWARD);
+    _rightMotor.move(!RIGHT_FORWARD);
   }
   _leftMotor.stop();
   _rightMotor.stop();
@@ -76,21 +75,24 @@ void MotorController::reverseVelocity(int velocity)
 
 void MotorController::rotate(int angle)
 {
-  _leftEncoder.reset();
+  leftMotor.resetEcoder();
 
   if (angle > 0)
   {
-    while (-_leftEncoder.getDistance() < arcLength(angle))
+    while (leftMotor.getEncoderDist() <= arcLength(angle))
     {
-      _leftMotor.move(LEFT_FORDWARD);
-      _rightMotor.move(!RIGHT_FORWARD);
+  
+      _leftMotor.move(LEFT_FORWARD);
+      _rightMotor.move(RIGHT_REVERSE);
     }
+    _leftMotor.stop();
+    _rightMotor.stop();
   }
   else
   {
-    while (_leftEncoder.getDistance() > -arcLength(angle))
+    while (leftMotor.getEncoderDist() >= arcLength(angle))
     {
-      _leftMotor.move(!LEFT_FORDWARD);
+      _leftMotor.move(LEFT_REVERSE);
       _rightMotor.move(RIGHT_FORWARD);
     }
   }
@@ -101,7 +103,7 @@ void MotorController::rotate(int angle)
 
 float MotorController::arcLength(float angle)
 {
-  float arcLength = (2 * 3.14 * 44 * (angle / 360));
+  float arcLength = (2 * 3.14 * 49.5 * (angle / 360));
   return arcLength;
 }
 void MotorController::updateCurrentAngle(int angleChange)
