@@ -80,7 +80,7 @@ void MotorController::avoid(void)
   wait_us(1000);
   motorControl.setStuck(false);
   motorControl.reverseDist(100);
-  motorControl.rotate(180);
+  motorControl.rotate(90);
 }
 
 void MotorController::forwardVelocity(int velocity)
