@@ -9,11 +9,10 @@ Bumper::Bumper(PinName left, PinName right)
 {
 }
 void Bumper::setup(){
-    _left.rise(callback(this, &Bumper::avoid));
-    _right.rise(callback(this, &Bumper::avoid));
+    _left.fall(callback(this, &Bumper::avoid));
+    _right.fall(callback(this, &Bumper::avoid));
 }
 
 void Bumper::avoid(){
-    motorControl.reverse(100);
-    motorControl.rotateClockwise();
+    motorControl.setStuck(true);
 }

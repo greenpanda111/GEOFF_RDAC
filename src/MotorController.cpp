@@ -42,13 +42,13 @@ void MotorController::reverse(int distance)
 {
 
   _leftEncoder.reset();
-  while (_leftEncoder.getDistance() > distance)
+  while (_leftEncoder.getDistance() > -distance)
   {
     Serial.print("encoder Dist: ");
     Serial.println(_leftEncoder.getDistance());
 
-    _leftMotor.move(Right_Forward, _pwr);
-    _rightMotor.move(Left_Forward, _pwr);
+    _leftMotor.move(!Right_Forward, _pwr);
+    _rightMotor.move(!Left_Forward, _pwr);
   }
   _leftMotor.stop();
   _rightMotor.stop();
