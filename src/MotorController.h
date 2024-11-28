@@ -29,12 +29,16 @@ public:
 private:
   Motor &_leftMotor;
   Motor &_rightMotor;
-  bool _forwardDirection;
+
   float arcLength(float angle);
   void updateCurrentAngle(int angleChange);
   void avoid(void);
+
+  bool _forwardDirection;
   int _currentAngle;
   bool _stuck;
+  bool _leftGo;
+  bool _rightGo;
 };
 extern MotorController motorControl;
 #endif

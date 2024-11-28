@@ -41,9 +41,21 @@ void MotorController::setStuck(bool status)
 
 void MotorController::forwardDist(int distance)
 {
-  leftMotor.resetEcoder();
-  while ((leftMotor.getEncoderDist() < distance) & (_stuck == false))
+  _leftMotor.resetEcoder();
+  _rightMotor.resetEcoder();
+
+  _leftMotor.setTargetDistance(distance);
+  _rightMotor.setTargetDistance(distance);
+
+  while ((_leftMotor.getEncoderDist() < distance) & (_rightMotor.getEncoderDist() < distance) & (_stuck == false))
   {
+    Serial.print(leftMotor.getEncoderDist());
+    Serial.print(" of ");
+    Serial.println(distance);
+    //Serial.println(leftMotor.getCurrentVelocity());
+    _leftMotor.setCurrentDistance(_leftMotor.getEncoderDist());
+    _rightMotor.setCurrentDistance(_rightMotor.getEncoderDist());
+    
     _leftMotor.move(LEFT_FORWARD);
     _rightMotor.move(RIGHT_FORWARD);
   }
@@ -58,10 +70,21 @@ void MotorController::forwardDist(int distance)
 
 void MotorController::reverseDist(int distance)
 {
-  leftMotor.resetEcoder();
+  _leftMotor.resetEcoder();
+  _rightMotor.resetEcoder();
 
-  while ((leftMotor.getEncoderDist() > -distance) & (_stuck == false))
+  _leftMotor.setTargetDistance(distance);
+  _rightMotor.setTargetDistance(distance);
+
+  while ((_leftMotor.getEncoderDist() < -distance) & (_rightMotor.getEncoderDist() < -distance) & (_stuck == false))
   {
+    Serial.print(leftMotor.getEncoderDist());
+    Serial.print(" of ");
+    Serial.println(distance);
+    //Serial.println(leftMotor.getCurrentVelocity());
+    _leftMotor.setCurrentDistance(_leftMotor.getEncoderDist());
+    _rightMotor.setCurrentDistance(_rightMotor.getEncoderDist());
+    
     _leftMotor.move(LEFT_REVERSE);
     _rightMotor.move(RIGHT_REVERSE);
   }

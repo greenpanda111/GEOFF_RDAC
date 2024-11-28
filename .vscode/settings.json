@@ -1,7 +1,8 @@
 {
     "files.autoSave": "afterDelay",
     "files.associations": {
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "*.tcc": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

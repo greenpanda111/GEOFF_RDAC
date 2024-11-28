@@ -131,6 +131,8 @@ void loop()
   matrix.show();
 
   motorControl.forwardDist(100);
+  
+  
   //motorControl.rotate(90);
   //motorControl.reverseDist(100);
 
