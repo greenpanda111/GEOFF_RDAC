@@ -5,13 +5,17 @@
 #include "mbed.h"
 using namespace mbed;
 
-#define DISTANCE_KP 0.07
-#define DISTANCE_KI 0.00001
-#define DISTANCE_KD 0.000001
+#define DISTANCE_KP 0.1
+#define DISTANCE_KI 0
+#define DISTANCE_KD 0
 
-#define VELOCITY_KP 0.0008
-#define VELOCITY_KI 0.05
+#define VELOCITY_KP 0.1
+#define VELOCITY_KI 0
 #define VELOCITY_KD 0
+
+#define ROTATING_KP 0.4
+#define ROTATING_KI 0
+#define ROTATING_KD 0
 
 #define TICKER_DELAY 0.1
 
@@ -24,15 +28,24 @@ void Motor::setup(void)
   _PwmPin.write(0.0f);
   _encoder.setup();
   _PIDSet = false;
+  _isRotating = false;
   _PIDTicker.attach(callback(this, &Motor::PID), TICKER_DELAY);
   _velocityTicker.attach(callback(this, &Motor::calculateCurrentVelocity), TICKER_DELAY);
+  _PIDDistError = 0;
+  _PIDVelError = 0;
+  _PIDLastDistError = 0;
+  _PIDLastVelError = 0;
+  _PIDIntegral = 0;
+  _PIDDerivative = 0;
+  _PIDOutput = 0;
+  _lastEncoderDist = 0;
 }
 
 void Motor::move(float power)
 {
 
   _PIDSet = true;
-  setTargetVelocity(abs(power*500));
+  setTargetVelocity(abs(power * 500));
   if (power > 0)
   {
     _dirPin.write(_forwardDirection);
@@ -53,12 +66,11 @@ void Motor::stop(void)
 
 void Motor::calculateCurrentVelocity(void)
 {
-  float velocity = 0;
-  velocity = _encoder.getDistance() / 0.1;
-  setCurrentVelocity(velocity);
+  _currentVelocity = abs(_encoder.getDistance()) - _lastEncoderDist / 0.1;
+  _lastEncoderDist = abs(_encoder.getDistance());
 }
 
-void Motor::resetEcoder(void)
+void Motor::resetEncoder(void)
 {
   _encoder.reset();
 }
@@ -68,58 +80,67 @@ float Motor::getEncoderDist(void)
   return _encoder.getDistance();
 }
 
-void Motor::PID()
+void Motor::PID(void)
 {
   if (_PIDSet == false)
   {
+    _PIDDistError = 0;
+    _PIDVelError = 0;
+    _PIDLastDistError = 0;
+    _PIDLastVelError = 0;
+    _PIDIntegral = 0;
+    _PIDDerivative = 0;
+    _isRotating = false;
     return;
   }
-
-  float proportional = 0;
-  float integral = 0;
-  float derivative = 0;
-  float output = 0;
-
-  float error = _targetDistance - _currentDistance;
-  // update last error
-  _lastError = error;
-  //constant velocity
-  if (error==0){
-    output=0;
-  }/*
-  else if (error > WHEEL_CIRCUMFERENCE){
-    setTargetVelocity(500);
-  }*/
-  
-  else if (error > WHEEL_CIRCUMFERENCE)// /8
+  _PIDDistError = _targetDistance - _currentDistance;
+  // stopping
+  if (_PIDDistError == 0)
   {
-    error = _targetVelocity - _currentVelocity;
-    proportional = error * VELOCITY_KP;
-    integral += error * TICKER_DELAY * VELOCITY_KI;
-    derivative = (error - _lastError)/TICKER_DELAY *VELOCITY_KD;
-    output = (proportional + integral + derivative);
+    _PIDOutput = 0;
   }
-  
+
+  // constant velocity
+  else if ((_PIDDistError > WHEEL_CIRCUMFERENCE) & (_isRotating = false))
+  {
+    _PIDVelError = _targetVelocity - _currentVelocity;
+    // update last error
+    _PIDLastVelError = _PIDVelError;
+
+    _PIDIntegral += _PIDVelError * TICKER_DELAY;
+    _PIDDerivative = ((_PIDVelError - _PIDLastVelError) / TICKER_DELAY);
+
+    _PIDOutput = _PIDVelError * DISTANCE_KP + _PIDIntegral * DISTANCE_KI + _PIDDerivative * DISTANCE_KD;
+  }
+  // exact distance
   else
   {
-    // distance
-    proportional = DISTANCE_KP * error;
-    integral = DISTANCE_KI * error * TICKER_DELAY;
-    derivative = DISTANCE_KD * ((error - _lastError) / TICKER_DELAY);
+    // update last error
+    _PIDLastDistError = _PIDDistError;
 
-    output = proportional + integral + derivative;
+    _PIDIntegral += _PIDDistError * TICKER_DELAY;
+    _PIDDerivative = ((_PIDDistError - _PIDLastDistError) / TICKER_DELAY);
+    if (_isRotating == false)
+    {
+      _PIDOutput = _PIDDistError * DISTANCE_KP + _PIDIntegral * DISTANCE_KI + _PIDDerivative * DISTANCE_KD;
+    }
+    else
+    {
+      _PIDOutput = _PIDDistError * ROTATING_KD + _PIDIntegral * ROTATING_KI + _PIDDerivative * ROTATING_KD;
+    }
   }
-  // clamp output between 0.4 and -0.4
-  if (output > 0.5f)
+
+  // clamp output between 0.5 and -0.5
+  if (_PIDOutput > 0.5f)
   {
-    output = 0.5f;
+    _PIDOutput = 0.5f;
   }
-  if (output < -0.5f)
+  if (_PIDOutput < -0.5f)
   {
-    output = -0.5f;
+    _PIDOutput = -0.5f;
   }
-  
-  _PwmPin.write(output);
+
+  _PwmPin.write(_PIDOutput);
 }
 
 void Motor::setTargetDistance(float target)
@@ -145,4 +166,9 @@ void Motor::setCurrentVelocity(float current)
 float Motor::getCurrentVelocity(void)
 {
   return _currentVelocity;
+}
+
+void Motor::setIsRotating(bool value)
+{
+  _isRotating = value;
 }

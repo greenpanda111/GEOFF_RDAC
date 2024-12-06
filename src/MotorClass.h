@@ -25,8 +25,9 @@ public:
   void setCurrentDistance(float current);
   void setTargetVelocity(float target);
   void setCurrentVelocity(float current);
+  void setIsRotating(bool value);
   float getCurrentVelocity(void);
-  void resetEcoder();
+  void resetEncoder();
   float getEncoderDist(void);
 
 private:
@@ -36,12 +37,20 @@ private:
   Ticker _PIDTicker;
   Ticker _velocityTicker;
   bool _forwardDirection;
-  float _lastError;
+  float _PIDDistError;
+  float _PIDVelError;
+  float _PIDLastDistError;
+  float _PIDLastVelError;
+  float _PIDIntegral;
+  float _PIDDerivative;
+  float _PIDOutput;
   float _targetDistance;
   float _currentDistance;
   float _targetVelocity;
   float _currentVelocity;
+  float _lastEncoderDist;
   bool _PIDSet;
+  bool _isRotating;
   void calculateCurrentVelocity(void);
 };
 

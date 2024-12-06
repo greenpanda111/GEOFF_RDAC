@@ -130,10 +130,11 @@ void loop()
   matrix.drawPixel(0,0,matrix.Color(255,255,255));
   matrix.show();
 
-  motorControl.forwardDist(100);
-  
-  
-  //motorControl.rotate(90);
+  //motorControl.forwardDist(300);
+  //motorControl.reverseDist(300);
+  motorControl.rotate(90);
+  //wait_us(STD_DELAY/3);
+  //motorControl.rotate(-90);
   //motorControl.reverseDist(100);
 
    //Serial.print("current velocity: ");
