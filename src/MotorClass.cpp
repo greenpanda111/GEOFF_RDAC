@@ -5,15 +5,15 @@
 #include "mbed.h"
 using namespace mbed;
 
-#define DISTANCE_KP 0.1
+#define DISTANCE_KP 0.005
 #define DISTANCE_KI 0
 #define DISTANCE_KD 0
 
-#define VELOCITY_KP 0.1
+#define VELOCITY_KP 0.05
 #define VELOCITY_KI 0
 #define VELOCITY_KD 0
 
-#define ROTATING_KP 0.4
+#define ROTATING_KP 1
 #define ROTATING_KI 0
 #define ROTATING_KD 0
 
@@ -66,7 +66,7 @@ void Motor::stop(void)
 
 void Motor::calculateCurrentVelocity(void)
 {
-  _currentVelocity = abs(_encoder.getDistance()) - _lastEncoderDist / 0.1;
+  _currentVelocity = (abs(_encoder.getDistance()) - _lastEncoderDist) / TICKER_DELAY;
   _lastEncoderDist = abs(_encoder.getDistance());
 }
 
@@ -101,9 +101,9 @@ void Motor::PID(void)
   }
 
   // constant velocity
-  else if ((_PIDDistError > WHEEL_CIRCUMFERENCE) & (_isRotating = false))
+  else if ((_PIDDistError > WHEEL_CIRCUMFERENCE) & (_isRotating == false))
   {
-    _PIDVelError = _targetVelocity - _currentVelocity;
+    _PIDVelError = abs(_targetVelocity - _currentVelocity);
     // update last error
     _PIDLastVelError = _PIDVelError;
 

@@ -24,6 +24,7 @@ void Encoder::countPulse(void)
 {
     if (_pinA != _pinB)
     {
+        
         _count++;
     }
     else

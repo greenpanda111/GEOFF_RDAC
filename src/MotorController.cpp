@@ -3,6 +3,7 @@
 #include "MotorClass.h"
 #include "MotorController.h"
 #include "mbed.h"
+#include "Map.h"
 
 using namespace mbed;
 
@@ -49,18 +50,15 @@ void MotorController::forwardDist(int distance)
 
   while ((_leftMotor.getEncoderDist() < distance) & (_rightMotor.getEncoderDist() < distance) & (_stuck == false))
   {
-    Serial.print(leftMotor.getEncoderDist());
-    Serial.print(" of ");
-    Serial.println(distance);
-    // Serial.println(leftMotor.getCurrentVelocity());
-    _leftMotor.setCurrentDistance(_leftMotor.getEncoderDist());
-    _rightMotor.setCurrentDistance(_rightMotor.getEncoderDist());
+    _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
+    _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
 
     _leftMotor.move(LEFT_FORWARD);
     _rightMotor.move(RIGHT_FORWARD);
   }
   _leftMotor.stop();
   _rightMotor.stop();
+  
 
   if (_stuck == true)
   {
@@ -79,10 +77,6 @@ void MotorController::reverseDist(int distance)
 
   while ((_leftMotor.getEncoderDist() > -distance) & (_rightMotor.getEncoderDist() > -distance) & (_stuck == false))
   {
-    Serial.print(leftMotor.getEncoderDist());
-    Serial.print(" of ");
-    Serial.println(distance);
-
     _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
     _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
 
@@ -102,8 +96,6 @@ void MotorController::rotate(int angle)
 {
   leftMotor.resetEncoder();
   rightMotor.resetEncoder();
-  Serial.println("rotating");
-  Serial.println(arcLength(angle));
 
   leftMotor.setIsRotating(true);
   rightMotor.setIsRotating(true);
@@ -117,10 +109,7 @@ void MotorController::rotate(int angle)
   {
     while ((abs(leftMotor.getEncoderDist()) < distance) & (abs(rightMotor.getEncoderDist()) < distance) & (_stuck == false))
     {
-      Serial.print(rightMotor.getEncoderDist());
-      Serial.print(" of ");
-      Serial.println(distance);
-
+ 
       _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
       _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
 
@@ -139,7 +128,6 @@ void MotorController::rotate(int angle)
   else
   {
   }
-
   _leftMotor.stop();
   _rightMotor.stop();
   updateCurrentAngle(angle);

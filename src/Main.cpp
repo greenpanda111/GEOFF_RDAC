@@ -13,6 +13,7 @@
 #include "Neopixel.h"
 #include "rtos.h"
 #include "Bumpers.h"
+#include "Map.h"
 
 using namespace mbed;
 
@@ -28,35 +29,9 @@ IR sideRightIR(RIGHT_SIDE);
 
 Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
 
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, A7,
-                                               NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
-                                               NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
-                                               NEO_BGR + NEO_KHZ800);
-
-
-const unsigned char PROGMEM bitmap[] ={
-
-     0xff, 0xff, 0x9e, 0x19, 0x90, 0x11, 0x90, 0x71, 0x80, 0x1, 0x80, 0x1, 
-  0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x86, 0x71, 0x90, 0x41, 
-  0x90, 0x41, 0x90, 0x41, 0x93, 0x41, 0xff, 0xff, 
-};
-
-int x = matrix.width();
-
-//rtos::Thread sensorThread;
-rtos::Thread blinkLEDThread;
-
 int IROutputList[4] = {0, 0, 0, 0};
 int ultrasonicOutputList[2] = {0, 0};
 
-void blinkLED(){
-  while(1){
-  matrix.drawPixel(1,14,matrix.Color(255,0,0));
-  rtos::ThisThread::sleep_for(1000);
-  matrix.drawPixel(1,14,matrix.Color(0,0,0));
-  rtos::ThisThread::sleep_for(1000);
-  }
-}
 /*
 void sensorThread()
 {
@@ -105,34 +80,28 @@ void sensorsOutput()
 void setup()
 {
   //sensorThread.start(sensorThread);
-  blinkLEDThread.start(blinkLED);
   leftMotor.setup();
   rightMotor.setup();
   leftUltrasonic.correction();
   rightUltrasonic.correction();
   bumper.setup();
   motorControl.setup();
+  mapSetup();
 
-  matrix.begin();
-  matrix.show();
-  matrix.setTextWrap(false);
-  matrix.setBrightness(20);
-  matrix.setTextColor(matrix.Color(0, 0, 255));
-  matrix.setCursor(0, 0);
-  matrix.show();
 }
 
 void loop()
 {
   Serial.println("Loop Start --------------------------------");
 
-  matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
-  matrix.drawPixel(0,0,matrix.Color(255,255,255));
-  matrix.show();
+  //matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
+  //matrix.drawPixel(0,0,matrix.Color(255,255,255));
+  
+  
 
-  //motorControl.forwardDist(300);
+  motorControl.forwardDist(300);
   //motorControl.reverseDist(300);
-  motorControl.rotate(90);
+  //motorControl.rotate(90);
   //wait_us(STD_DELAY/3);
   //motorControl.rotate(-90);
   //motorControl.reverseDist(100);
