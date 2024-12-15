@@ -87,7 +87,7 @@ void setup()
   bumper.setup();
   motorControl.setup();
   mapSetup();
-
+  motorControl.forwardDist(300);
 }
 
 void loop()
@@ -98,16 +98,18 @@ void loop()
   //matrix.drawPixel(0,0,matrix.Color(255,255,255));
   
   
+  //Serial.println(rightMotor.getEncoderDist());
+  Serial.println(300*STEP_CONVERSION - leftMotor.getEncoderCount());
+  Serial.println(leftMotor.getEncoderDist());
+  //Serial.println(rightMotor.getEncoderCount());
+  //Serial.println(rightMotor.getEncoderCount());
 
-  motorControl.forwardDist(300);
   //motorControl.reverseDist(300);
   //motorControl.rotate(90);
   //wait_us(STD_DELAY/3);
   //motorControl.rotate(-90);
   //motorControl.reverseDist(100);
 
-   //Serial.print("current velocity: ");
-  //Serial.println(leftMotor.getCurrentVelocity());
   wait_us(STD_DELAY);
 
   Serial.println();

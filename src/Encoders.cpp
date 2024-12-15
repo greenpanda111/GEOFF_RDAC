@@ -14,17 +14,22 @@ void Encoder::setup(void)
     reset();
 }
 
-int Encoder::getDistance(void)
+float Encoder::getDistance(void)
 {
-    //converts count to distance in mm
-    return ((int)((WHEEL_PI * WHEEL_RADIUS * _count) / STEP_CONVERSION)) << 1;
+    // converts count to distance in mm
+    return _count/STEP_CONVERSION;
+}
+
+float Encoder::getCount(void)
+{
+    return _count;
 }
 
 void Encoder::countPulse(void)
 {
     if (_pinA != _pinB)
     {
-        
+
         _count++;
     }
     else

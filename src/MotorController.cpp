@@ -42,34 +42,21 @@ void MotorController::setStuck(bool status)
 
 void MotorController::forwardDist(int distance)
 {
-  _leftMotor.resetEncoder();
-  _rightMotor.resetEncoder();
-
-  _leftMotor.setTargetDistance(distance);
-  _rightMotor.setTargetDistance(distance);
-
-  while ((_leftMotor.getEncoderDist() < distance) & (_rightMotor.getEncoderDist() < distance) & (_stuck == false))
-  {
-    _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
-    _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
-
-    _leftMotor.move(LEFT_FORWARD);
-    _rightMotor.move(RIGHT_FORWARD);
-  }
-  _leftMotor.stop();
-  _rightMotor.stop();
+  _rightMotor.move(-distance);
+  _leftMotor.move(distance);
   
-
+ /*
   if (_stuck == true)
   {
     motorControl.avoid();
   }
+  */
 }
 
 void MotorController::reverseDist(int distance)
 {
-  _leftMotor.resetEncoder();
-  _rightMotor.resetEncoder();
+ // _leftMotor.resetEncoder();
+ // _rightMotor.resetEncoder();
 
   _leftMotor.setTargetDistance(distance);
   _rightMotor.setTargetDistance(distance);
@@ -77,8 +64,8 @@ void MotorController::reverseDist(int distance)
 
   while ((_leftMotor.getEncoderDist() > -distance) & (_rightMotor.getEncoderDist() > -distance) & (_stuck == false))
   {
-    _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
-    _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
+   // _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
+//    _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
 
     _leftMotor.move(LEFT_REVERSE);
     _rightMotor.move(RIGHT_REVERSE);
@@ -94,8 +81,8 @@ void MotorController::reverseDist(int distance)
 
 void MotorController::rotate(int angle)
 {
-  leftMotor.resetEncoder();
-  rightMotor.resetEncoder();
+ // leftMotor.resetEncoder();
+ // rightMotor.resetEncoder();
 
   leftMotor.setIsRotating(true);
   rightMotor.setIsRotating(true);
@@ -110,8 +97,8 @@ void MotorController::rotate(int angle)
     while ((abs(leftMotor.getEncoderDist()) < distance) & (abs(rightMotor.getEncoderDist()) < distance) & (_stuck == false))
     {
  
-      _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
-      _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
+     // _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
+     // _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
 
       _leftMotor.move(LEFT_FORWARD);
       _rightMotor.move(RIGHT_REVERSE);
@@ -149,7 +136,7 @@ float MotorController::arcLength(float angle)
 void MotorController::updateCurrentAngle(int angleChange)
 {
   _currentAngle += angleChange;
-  if (_currentAngle > 360)
+  if (_currentAngle >= 360)
   {
     _currentAngle = _currentAngle - 360;
   }
@@ -162,18 +149,6 @@ void MotorController::avoid(void)
   motorControl.stop();
   motorControl.reverseDist(100);
   motorControl.rotate(90);
-}
-
-void MotorController::forwardVelocity(int velocity)
-{
-  _leftMotor.setTargetVelocity(velocity);
-  _rightMotor.setTargetVelocity(velocity);
-}
-
-void MotorController::reverseVelocity(int velocity)
-{
-  _leftMotor.setTargetVelocity(velocity);
-  _rightMotor.setTargetVelocity(velocity);
 }
 
 void MotorController::stop()

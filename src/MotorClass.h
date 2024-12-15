@@ -13,6 +13,13 @@ using namespace mbed;
 #define PWM_Period 0.01f
 #define Default_Power 0.5f
 
+enum MovementMode{
+  STOP,
+  CONSTANT_VELOCITY,
+  EXACT_DISTANCE,
+  ROTATING
+};
+
 class Motor
 {
 public:
@@ -22,13 +29,9 @@ public:
   void stop();
   void PID();
   void setTargetDistance(float target);
-  void setCurrentDistance(float current);
-  void setTargetVelocity(float target);
-  void setCurrentVelocity(float current);
   void setIsRotating(bool value);
-  float getCurrentVelocity(void);
-  void resetEncoder();
   float getEncoderDist(void);
+  float getEncoderCount(void);
 
 private:
   Encoder &_encoder;
@@ -36,22 +39,29 @@ private:
   DigitalOut _dirPin;
   Ticker _PIDTicker;
   Ticker _velocityTicker;
+
   bool _forwardDirection;
+
   float _PIDDistError;
   float _PIDVelError;
   float _PIDLastDistError;
   float _PIDLastVelError;
-  float _PIDIntegral;
-  float _PIDDerivative;
-  float _PIDOutput;
-  float _targetDistance;
-  float _currentDistance;
-  float _targetVelocity;
-  float _currentVelocity;
   float _lastEncoderDist;
   bool _PIDSet;
   bool _isRotating;
+
+  float _PIDIntegral;
+  float _PIDDerivative;
+  float _PIDOutput;
+
+  float _targetDistance;
+  float _currentDistance;
+
+  float _targetVelocity;
+  float _currentVelocity;
   void calculateCurrentVelocity(void);
+
+  MovementMode _movementMode;
 };
 
 extern Motor leftMotor;

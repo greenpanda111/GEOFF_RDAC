@@ -18,8 +18,6 @@ public:
   MotorController(Motor &leftMotor, Motor &rightMotor);
   void forwardDist(int distance);
   void reverseDist(int distance);
-  void forwardVelocity(int velocity);
-  void reverseVelocity(int velocity);
   void rotate(int angle);
   void stop();
   void setup();
