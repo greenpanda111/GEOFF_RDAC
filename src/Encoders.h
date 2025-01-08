@@ -15,10 +15,9 @@ class Encoder
 {
 public:
     Encoder(PinName pinA, PinName pinB);
-    void setup(void);
     void reset(void);
     float getDistance(void);
-    float getCount(void);
+    long int getCount(void);
 
 
 private:

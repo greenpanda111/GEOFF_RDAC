@@ -17,7 +17,7 @@
 
 using namespace mbed;
 
-#define STD_DELAY 1000000
+#define STD_DELAY 100000
 
 Ultrasonic leftUltrasonic(LEFT_ULTRASONIC_SENSOR_PIN);
 Ultrasonic rightUltrasonic(RIGHT_ULTRASONIC_SENSOR_PIN);
@@ -29,9 +29,15 @@ IR sideRightIR(RIGHT_SIDE);
 
 Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
 
+Ticker movement;
+
 int IROutputList[4] = {0, 0, 0, 0};
 int ultrasonicOutputList[2] = {0, 0};
 
+void movementTicker(void)
+{
+  motorControl.forwardDist(300);
+}
 /*
 void sensorThread()
 {
@@ -79,7 +85,8 @@ void sensorsOutput()
 
 void setup()
 {
-  //sensorThread.start(sensorThread);
+  // sensorThread.start(sensorThread);
+  //movement.attach(callback(movementTicker), 10);
   leftMotor.setup();
   rightMotor.setup();
   leftUltrasonic.correction();
@@ -94,21 +101,25 @@ void loop()
 {
   Serial.println("Loop Start --------------------------------");
 
-  //matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
-  //matrix.drawPixel(0,0,matrix.Color(255,255,255));
-  
-  
-  //Serial.println(rightMotor.getEncoderDist());
-  Serial.println(300*STEP_CONVERSION - leftMotor.getEncoderCount());
-  Serial.println(leftMotor.getEncoderDist());
-  //Serial.println(rightMotor.getEncoderCount());
-  //Serial.println(rightMotor.getEncoderCount());
+  // matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
+  // matrix.drawPixel(0,0,matrix.Color(255,255,255));
 
-  //motorControl.reverseDist(300);
-  //motorControl.rotate(90);
-  //wait_us(STD_DELAY/3);
-  //motorControl.rotate(-90);
-  //motorControl.reverseDist(100);
+  // Serial.println(rightMotor.getEncoderDist());
+  
+  Serial.print("left:");
+  //Serial.println(300*STEP_CONVERSION - leftMotor.getEncoderCount());
+  Serial.println(leftMotor.getEncoderDist());
+  Serial.print("right:");
+  //Serial.println(300*STEP_CONVERSION - rightMotor.getEncoderCount());
+  Serial.println(rightMotor.getEncoderDist());
+  
+  // Serial.println(rightMotor.getEncoderCount());
+
+  // motorControl.reverseDist(300);
+  // motorControl.rotate(90);
+  // wait_us(STD_DELAY/3);
+  // motorControl.rotate(-90);
+  // motorControl.reverseDist(100);
 
   wait_us(STD_DELAY);
 

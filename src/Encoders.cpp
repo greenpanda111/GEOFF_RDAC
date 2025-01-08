@@ -6,10 +6,6 @@ using namespace mbed;
 Encoder::Encoder(PinName pinA, PinName pinB)
     : _pinA(pinA), _pinB(pinB)
 {
-}
-
-void Encoder::setup(void)
-{
     _pinA.rise(callback(this, &Encoder::countPulse));
     reset();
 }
@@ -20,7 +16,7 @@ float Encoder::getDistance(void)
     return _count/STEP_CONVERSION;
 }
 
-float Encoder::getCount(void)
+long int Encoder::getCount(void)
 {
     return _count;
 }
@@ -40,5 +36,5 @@ void Encoder::countPulse(void)
 
 void Encoder::reset(void)
 {
-    _count = 0;
+    _count = 0.0;
 }

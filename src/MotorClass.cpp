@@ -5,11 +5,11 @@
 #include "mbed.h"
 using namespace mbed;
 
-#define DISTANCE_KP 0.0055
+#define DISTANCE_KP 0.01
 #define DISTANCE_KI 0
 #define DISTANCE_KD 0
 
-#define VELOCITY_KP 0.01
+#define VELOCITY_KP 0.05
 #define VELOCITY_KI 0
 #define VELOCITY_KD 0
 
@@ -27,7 +27,6 @@ void Motor::setup(void)
 {
   _PwmPin.period(PWM_Period);
   _PwmPin.write(0.0f);
-  _encoder.setup();
   _isRotating = false;
   _PIDTicker.attach(callback(this, &Motor::PID), PID_TICKER_PERIOD);
   _velocityTicker.attach(callback(this, &Motor::calculateCurrentVelocity), VELOCITY_TICKER_PERIOD);
@@ -46,7 +45,7 @@ void Motor::move(float distance)
 {
   _encoder.reset();
   _targetDistance = abs(distance);
-  _targetVelocity = (20);
+  _targetVelocity = 20;
 
   if (distance > 0)
   {
@@ -61,10 +60,16 @@ void Motor::move(float distance)
 
 void Motor::stop(void)
 {
-  _PwmPin.write(0);
+  _movementMode = STOP;
+  Serial.println("stopping");
   _targetDistance = 0;
   _targetVelocity = 0;
-  _movementMode = STOP;
+  _PIDIntegral = 0;
+  _PIDDerivative = 0;
+  _PIDLastDistError = 0;
+  _PIDLastVelError = 0;
+  _PIDOutput = 0;
+  _PwmPin.write(_PIDOutput);
 }
 
 void Motor::calculateCurrentVelocity(void)
@@ -89,19 +94,28 @@ void Motor::PID(void)
   switch (mode)
   {
   case STOP:
-    _PIDOutput = 0;
+  
     _PIDIntegral = 0;
     _PIDDerivative = 0;
     _PIDLastDistError = 0;
     _PIDLastVelError = 0;
-    break;
+    _PIDOutput = 0;
+    _PwmPin.write(_PIDOutput);
+    return;
 
   case CONSTANT_VELOCITY:
-    _PIDDistError = (abs(_targetDistance) * STEP_CONVERSION) - abs(_encoder.getCount());
+    _PIDDistError = abs((_targetDistance * STEP_CONVERSION) - _encoder.getCount());
 
+   
+    
+    if (abs((_targetDistance * STEP_CONVERSION) - _encoder.getCount()) < ONE_ROTATION_TICKS){
+      _targetVelocity = 5;
+    }
     // if close to target switch to exact distance mode
-    if ((abs(_targetDistance) * STEP_CONVERSION - abs(_encoder.getCount())) < ONE_ROTATION_TICKS / 8)
+    else if (abs((_targetDistance * STEP_CONVERSION) - _encoder.getCount()) < ONE_ROTATION_TICKS / 4)
     {
+      _PIDDistError = _targetDistance - _encoder.getCount();
+      _PIDLastDistError = _targetDistance - _encoder.getCount();
       _PIDIntegral = 0;
       _PIDDerivative = 0;
       _PIDLastDistError = 0;
@@ -109,8 +123,8 @@ void Motor::PID(void)
       _movementMode = EXACT_DISTANCE;
       break;
     }
+
     // if rotating switch to rotating mode
-    
     else if (_isRotating == true)
     {
       _PIDIntegral = 0;
@@ -120,43 +134,39 @@ void Motor::PID(void)
       _movementMode = ROTATING;
       break;
     }
+
+      _PIDVelError = _targetVelocity - _currentVelocity;
+      _PIDIntegral += _PIDVelError * PID_TICKER_PERIOD;
+      _PIDDerivative = ((_PIDVelError - _PIDLastVelError) / PID_TICKER_PERIOD);
+
+      _PIDOutput = _PIDVelError * VELOCITY_KP + _PIDIntegral * VELOCITY_KI + _PIDDerivative * VELOCITY_KD;
+
+      _PIDLastVelError = _PIDVelError;
     
-    else{
-    _PIDVelError = abs(_targetVelocity - abs(_currentVelocity));
-    _PIDIntegral += _PIDVelError * PID_TICKER_PERIOD;
-    _PIDDerivative = ((_PIDVelError - _PIDLastVelError) / PID_TICKER_PERIOD);
-
-    _PIDOutput = _PIDVelError * VELOCITY_KP + _PIDIntegral * VELOCITY_KI + _PIDDerivative * VELOCITY_KD;
-
-    _PIDLastVelError = _PIDVelError;
-    }
     break;
 
   case EXACT_DISTANCE:
 
-    _PIDDistError = (_targetDistance * STEP_CONVERSION) - _encoder.getCount();
+    _PIDDistError = abs((_targetDistance * STEP_CONVERSION) - _encoder.getCount());
 
-    if (_PIDDistError < 10)
+    if (_PIDDistError < 1)
     {
-      _targetDistance = 0;
-      _targetVelocity = 0;
-      _PIDOutput = 0;
-      _PwmPin.write(_PIDOutput);
       _movementMode = STOP;
       break;
     }
-    else{
-    _PIDIntegral += _PIDDistError * PID_TICKER_PERIOD;
-    _PIDDerivative = ((_PIDDistError - _PIDLastDistError) / PID_TICKER_PERIOD);
-    _PIDOutput = _PIDDistError * DISTANCE_KP + _PIDIntegral * DISTANCE_KI + _PIDDerivative * DISTANCE_KD;
+    else
+    {
+      _PIDIntegral += _PIDDistError * PID_TICKER_PERIOD;
+      _PIDDerivative = ((_PIDDistError - _PIDLastDistError) / PID_TICKER_PERIOD);
+      _PIDOutput = _PIDDistError * DISTANCE_KP + _PIDIntegral * DISTANCE_KI + _PIDDerivative * DISTANCE_KD;
 
-    // update last error
-    _PIDLastDistError = _PIDDistError;
+      // update last error
+      _PIDLastDistError = _PIDDistError;
     }
     break;
 
   case ROTATING:
-    _PIDDistError = abs(_targetDistance) - _encoder.getDistance();
+    _PIDDistError = abs(_targetDistance - _encoder.getDistance());
 
     _PIDIntegral += _PIDDistError * PID_TICKER_PERIOD;
     _PIDDerivative = ((_PIDDistError - _PIDLastDistError) / PID_TICKER_PERIOD);
