@@ -35,8 +35,6 @@ private:
   bool _forwardDirection;
   int _currentAngle;
   bool _stuck;
-  bool _leftGo;
-  bool _rightGo;
 };
 extern MotorController motorControl;
 #endif

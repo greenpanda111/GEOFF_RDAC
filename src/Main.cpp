@@ -14,6 +14,7 @@
 #include "rtos.h"
 #include "Bumpers.h"
 #include "Map.h"
+#include "MazeSolver.h"
 
 using namespace mbed;
 
@@ -22,16 +23,6 @@ using namespace mbed;
 Ultrasonic leftUltrasonic(LEFT_ULTRASONIC_SENSOR_PIN);
 Ultrasonic rightUltrasonic(RIGHT_ULTRASONIC_SENSOR_PIN);
 
-IR frontLeftIR(LEFT_FRONT);
-IR frontRightIR(RIGHT_FRONT);
-IR sideLeftIR(LEFT_SIDE);
-IR sideRightIR(RIGHT_SIDE);
-
-Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
-
-Ticker movement;
-
-int IROutputList[4] = {0, 0, 0, 0};
 int ultrasonicOutputList[2] = {0, 0};
 
 void movementTicker(void)
@@ -53,7 +44,7 @@ void sensorThread()
   }
 }
 
-*/
+
 void sensorsOutput()
 {
 
@@ -82,19 +73,15 @@ void sensorsOutput()
   Serial.print(ultrasonicOutputList[1]);
   Serial.println("");
 }
-
+*/
 void setup()
 {
   // sensorThread.start(sensorThread);
-  //movement.attach(callback(movementTicker), 10);
-  leftMotor.setup();
-  rightMotor.setup();
   leftUltrasonic.correction();
   rightUltrasonic.correction();
-  bumper.setup();
+
   motorControl.setup();
   mapSetup();
-  motorControl.forwardDist(300);
 }
 
 void loop()
@@ -104,23 +91,10 @@ void loop()
   // matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   // matrix.drawPixel(0,0,matrix.Color(255,255,255));
 
-  // Serial.println(rightMotor.getEncoderDist());
-  
-  Serial.print("left:");
-  //Serial.println(300*STEP_CONVERSION - leftMotor.getEncoderCount());
-  Serial.println(leftMotor.getEncoderDist());
-  Serial.print("right:");
-  //Serial.println(300*STEP_CONVERSION - rightMotor.getEncoderCount());
-  Serial.println(rightMotor.getEncoderDist());
-  
-  // Serial.println(rightMotor.getEncoderCount());
-
-  // motorControl.reverseDist(300);
-  // motorControl.rotate(90);
-  // wait_us(STD_DELAY/3);
-  // motorControl.rotate(-90);
-  // motorControl.reverseDist(100);
-
+  //Serial.println(motorControl.getCurrentAngle());
+  //IROutput();
+  //solveMaze();
+  motorControl.forwardDist(100);
   wait_us(STD_DELAY);
 
   Serial.println();

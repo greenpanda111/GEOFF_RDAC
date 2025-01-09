@@ -13,7 +13,7 @@ Encoder::Encoder(PinName pinA, PinName pinB)
 float Encoder::getDistance(void)
 {
     // converts count to distance in mm
-    return _count/STEP_CONVERSION;
+    return (float)_count/(float)STEP_CONVERSION;
 }
 
 long int Encoder::getCount(void)

@@ -4,13 +4,16 @@
 #include "MotorController.h"
 #include "mbed.h"
 #include "Map.h"
+#include "Bumpers.h"
 
 using namespace mbed;
 
+#define KP 0.5
+#define DEFAULTSPEED 0.4f
+#define RADIUS 49.5
+
 #define LEFT_FORWARD 0.5
 #define RIGHT_FORWARD -0.5
-#define LEFT_REVERSE -0.5
-#define RIGHT_REVERSE 0.5
 
 Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
@@ -19,6 +22,8 @@ Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORWARD, leftEncoder)
 Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD, rightEncoder);
 
 MotorController motorControl(leftMotor, rightMotor);
+
+Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
 
 MotorController::MotorController(Motor &leftMotor, Motor &rightMotor)
     : _leftMotor(leftMotor), _rightMotor(rightMotor)
@@ -29,6 +34,7 @@ void MotorController::setup()
   _leftMotor.setup();
   _rightMotor.setup();
   _currentAngle = 0;
+  bumper.setup();
 }
 int MotorController::getCurrentAngle()
 {
@@ -42,36 +48,37 @@ void MotorController::setStuck(bool status)
 
 void MotorController::forwardDist(int distance)
 {
-  _rightMotor.move(-distance);
-  _leftMotor.move(distance);
-  
- /*
+  leftEncoder.reset();
+  rightEncoder.reset();
+
+  while ((abs(leftEncoder.getDistance()) < distance) & (abs(rightEncoder.getDistance()) < distance) & (_stuck == false))
+  {
+    int error = (leftEncoder.getDistance() - rightEncoder.getDistance()) * KP;
+
+    _leftMotor.move(DEFAULTSPEED + error);
+    _rightMotor.move(-(DEFAULTSPEED - error));
+  }
+  stop();
+
   if (_stuck == true)
   {
     motorControl.avoid();
   }
-  */
 }
 
 void MotorController::reverseDist(int distance)
 {
- // _leftMotor.resetEncoder();
- // _rightMotor.resetEncoder();
+  leftEncoder.reset();
+  rightEncoder.reset();
 
-  _leftMotor.setTargetDistance(distance);
-  _rightMotor.setTargetDistance(distance);
-  Serial.println("reverse");
-
-  while ((_leftMotor.getEncoderDist() > -distance) & (_rightMotor.getEncoderDist() > -distance) & (_stuck == false))
+  while ((abs(leftEncoder.getDistance()) < distance) & (abs(rightEncoder.getDistance()) < distance) & (_stuck == false))
   {
-   // _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
-//    _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
+    int error = (leftEncoder.getDistance() - rightEncoder.getDistance()) * KP;
 
-    _leftMotor.move(LEFT_REVERSE);
-    _rightMotor.move(RIGHT_REVERSE);
+    _leftMotor.move(-(DEFAULTSPEED - error));
+    _rightMotor.move((DEFAULTSPEED + error));
   }
-  _leftMotor.stop();
-  _rightMotor.stop();
+  stop();
 
   if (_stuck == true)
   {
@@ -81,46 +88,34 @@ void MotorController::reverseDist(int distance)
 
 void MotorController::rotate(int angle)
 {
- // leftMotor.resetEncoder();
- // rightMotor.resetEncoder();
+  leftEncoder.reset();
+  rightEncoder.reset();
 
-  leftMotor.setIsRotating(true);
-  rightMotor.setIsRotating(true);
-
-  float distance = arcLength(angle);
-
-  _leftMotor.setTargetDistance(distance);
-  _rightMotor.setTargetDistance(distance);
+  float distance = arcLength(abs(angle));
 
   if (angle > 0)
   {
     while ((abs(leftMotor.getEncoderDist()) < distance) & (abs(rightMotor.getEncoderDist()) < distance) & (_stuck == false))
     {
- 
-     // _leftMotor.setCurrentDistance(abs(_leftMotor.getEncoderDist()));
-     // _rightMotor.setCurrentDistance(abs(_rightMotor.getEncoderDist()));
+      int error = (leftEncoder.getDistance() + rightEncoder.getDistance()) * KP;
 
-      _leftMotor.move(LEFT_FORWARD);
-      _rightMotor.move(RIGHT_REVERSE);
-    }
-  }
-  if (angle < 0)
-  {
-    while ((leftMotor.getEncoderDist() > -arcLength(angle)) & (rightMotor.getEncoderDist() < arcLength(angle)) & (_stuck == false))
-    {
-      _leftMotor.move(LEFT_REVERSE);
-      _rightMotor.move(RIGHT_FORWARD);
+      _leftMotor.move((DEFAULTSPEED - error));
+      _rightMotor.move((DEFAULTSPEED + error));
     }
   }
   else
   {
-  }
-  _leftMotor.stop();
-  _rightMotor.stop();
-  updateCurrentAngle(angle);
+    while ((abs(leftMotor.getEncoderDist()) < distance) & (abs(rightMotor.getEncoderDist()) < distance) & (_stuck == false))
+    {
+      int error = (leftEncoder.getDistance() + rightEncoder.getDistance()) * KP;
 
-  leftMotor.setIsRotating(false);
-  leftMotor.setIsRotating(false);
+      _leftMotor.move((DEFAULTSPEED - error));
+      _rightMotor.move((DEFAULTSPEED + error));
+    }
+  }
+  stop();
+
+  updateCurrentAngle(angle);
 
   if (_stuck == true)
   {
@@ -130,9 +125,10 @@ void MotorController::rotate(int angle)
 
 float MotorController::arcLength(float angle)
 {
-  float arcLength = (2 * 3.14 * 49.5 * (angle / 360));
+  float arcLength = (2 * PI * RADIUS * (angle / 360));
   return arcLength;
 }
+
 void MotorController::updateCurrentAngle(int angleChange)
 {
   _currentAngle += angleChange;
@@ -144,15 +140,15 @@ void MotorController::updateCurrentAngle(int angleChange)
 
 void MotorController::avoid(void)
 {
-  Serial.println("avoiding");
   motorControl.setStuck(false);
   motorControl.stop();
-  motorControl.reverseDist(100);
-  motorControl.rotate(90);
+  motorControl.reverseDist(40);
+  Serial.println("avoiding");
 }
 
 void MotorController::stop()
 {
+  Serial.println("stopping");
   _leftMotor.stop();
   _rightMotor.stop();
 }

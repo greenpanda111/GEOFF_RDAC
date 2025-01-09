@@ -27,9 +27,6 @@ public:
   void move(float power);
   void setup();
   void stop();
-  void PID();
-  void setTargetDistance(float target);
-  void setIsRotating(bool value);
   float getEncoderDist(void);
   float getEncoderCount(void);
 
@@ -37,27 +34,9 @@ private:
   Encoder &_encoder;
   PwmOut _PwmPin;
   DigitalOut _dirPin;
-  Ticker _PIDTicker;
   Ticker _velocityTicker;
-
   bool _forwardDirection;
-
-  float _PIDDistError;
-  float _PIDVelError;
-  float _PIDLastDistError;
-  float _PIDLastVelError;
   float _lastEncoderDist;
-  bool _PIDSet;
-  bool _isRotating;
-
-  float _PIDIntegral;
-  float _PIDDerivative;
-  float _PIDOutput;
-
-  float _targetDistance;
-  float _currentDistance;
-
-  float _targetVelocity;
   float _currentVelocity;
   void calculateCurrentVelocity(void);
 
