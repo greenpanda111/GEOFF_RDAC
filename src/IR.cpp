@@ -16,7 +16,7 @@ int IR::read()
 
   i2c.write(_mux_addr, &_mux_cmd, 1);
   i2c.write(_IR_addr, _cmd, 1);
-  wait_us(500000);
+  wait_us(5000);
   i2c.read(_IR_addr, _cmd, 2);
 
   _conversionArray[0] = _cmd[0], _cmd[1];

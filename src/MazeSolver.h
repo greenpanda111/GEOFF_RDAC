@@ -7,6 +7,8 @@ using namespace mbed;
 
 void solveMaze(void);
 void IROutput(void);
-void IRRead(void);
+void mazeSolverSetup(void);
+float IRAveraging(void);
+float frontIRAveraging(void);
 
 #endif //MAZESOLVER_H

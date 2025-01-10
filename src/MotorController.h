@@ -22,6 +22,7 @@ public:
   void stop();
   void setup();
   int getCurrentAngle();
+  void setCurrentAngle(int);
   void setStuck(bool status);
 
 private:

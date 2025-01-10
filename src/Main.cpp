@@ -25,26 +25,7 @@ Ultrasonic rightUltrasonic(RIGHT_ULTRASONIC_SENSOR_PIN);
 
 int ultrasonicOutputList[2] = {0, 0};
 
-void movementTicker(void)
-{
-  motorControl.forwardDist(300);
-}
 /*
-void sensorThread()
-{
-  while (true)
-  {
-    IROutputList[0] = frontLeftIR.read();
-    IROutputList[1] = frontRightIR.read();
-    IROutputList[2] = sideLeftIR.read();
-    IROutputList[3] = sideRightIR.read();
-
-    ultrasonicOutputList[0] = leftUltrasonic.read();
-    ultrasonicOutputList[1] = rightUltrasonic.read();
-  }
-}
-
-
 void sensorsOutput()
 {
 
@@ -82,6 +63,7 @@ void setup()
 
   motorControl.setup();
   mapSetup();
+  mazeSolverSetup();
 }
 
 void loop()
@@ -91,10 +73,11 @@ void loop()
   // matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   // matrix.drawPixel(0,0,matrix.Color(255,255,255));
 
-  //Serial.println(motorControl.getCurrentAngle());
+  // IRAveraging();
+
   //IROutput();
-  //solveMaze();
-  motorControl.forwardDist(100);
+   solveMaze();
+
   wait_us(STD_DELAY);
 
   Serial.println();

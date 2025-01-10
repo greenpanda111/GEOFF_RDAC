@@ -5,10 +5,10 @@
 #include "mbed.h"
 using namespace mbed;
 
-#define LEFT_FRONT 0x01
-#define RIGHT_FRONT 0x02
-#define LEFT_SIDE 0x08
-#define RIGHT_SIDE 0x04
+#define LEFT_SIDE 0x01
+#define RIGHT_SIDE 0x02
+#define RIGHT_FRONT 0x08
+#define LEFT_FRONT 0x04
 
 class IR
 {

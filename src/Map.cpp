@@ -56,8 +56,10 @@ void mapOverwriteLocation(int newLocation[2])
 }
 
 void mapUpdate(void) {
+    
     matrix.drawPixel(previousLocation[0], previousLocation[1], OFF);
     matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
+
     matrix.show();
 }
 

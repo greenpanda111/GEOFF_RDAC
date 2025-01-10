@@ -13,12 +13,6 @@ using namespace mbed;
 #define PWM_Period 0.01f
 #define Default_Power 0.5f
 
-enum MovementMode{
-  STOP,
-  CONSTANT_VELOCITY,
-  EXACT_DISTANCE,
-  ROTATING
-};
 
 class Motor
 {
@@ -39,8 +33,6 @@ private:
   float _lastEncoderDist;
   float _currentVelocity;
   void calculateCurrentVelocity(void);
-
-  MovementMode _movementMode;
 };
 
 extern Motor leftMotor;

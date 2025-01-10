@@ -10,7 +10,7 @@ using namespace mbed;
 
 #define KP 0.5
 #define DEFAULTSPEED 0.4f
-#define RADIUS 49.5
+#define RADIUS 53
 
 #define LEFT_FORWARD 0.5
 #define RIGHT_FORWARD -0.5
@@ -39,6 +39,11 @@ void MotorController::setup()
 int MotorController::getCurrentAngle()
 {
   return _currentAngle;
+}
+
+void MotorController::setCurrentAngle(int angle)
+{
+  _currentAngle = angle;
 }
 
 void MotorController::setStuck(bool status)
@@ -90,6 +95,7 @@ void MotorController::rotate(int angle)
 {
   leftEncoder.reset();
   rightEncoder.reset();
+  updateCurrentAngle(angle);
 
   float distance = arcLength(abs(angle));
 
@@ -109,13 +115,13 @@ void MotorController::rotate(int angle)
     {
       int error = (leftEncoder.getDistance() + rightEncoder.getDistance()) * KP;
 
-      _leftMotor.move((DEFAULTSPEED - error));
-      _rightMotor.move((DEFAULTSPEED + error));
+      _leftMotor.move(-(DEFAULTSPEED + error));
+      _rightMotor.move(-(DEFAULTSPEED - error));
     }
   }
   stop();
 
-  updateCurrentAngle(angle);
+  
 
   if (_stuck == true)
   {
@@ -135,20 +141,23 @@ void MotorController::updateCurrentAngle(int angleChange)
   if (_currentAngle >= 360)
   {
     _currentAngle = _currentAngle - 360;
+  } else if (_currentAngle<0)
+  {
+    _currentAngle = 360 - abs(_currentAngle);
   }
+  
 }
 
 void MotorController::avoid(void)
 {
   motorControl.setStuck(false);
   motorControl.stop();
-  motorControl.reverseDist(40);
+  motorControl.reverseDist(50);
   Serial.println("avoiding");
 }
 
 void MotorController::stop()
 {
-  Serial.println("stopping");
   _leftMotor.stop();
   _rightMotor.stop();
 }
