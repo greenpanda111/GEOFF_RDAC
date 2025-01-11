@@ -1,7 +1,7 @@
 
 #include "Arduino.h"
 #include "MotorClass.h"
-#include "MotorController.h"
+#include "MotionController.h"
 #include "mbed.h"
 #include "Map.h"
 #include "Bumpers.h"
@@ -21,37 +21,43 @@ Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORWARD, leftEncoder);
 Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD, rightEncoder);
 
-MotorController motorControl(leftMotor, rightMotor);
+MotionController motorControl(leftMotor, rightMotor);
 
 Bumper bumper(GPIO_PIN_3, GPIO_PIN_2);
 
-MotorController::MotorController(Motor &leftMotor, Motor &rightMotor)
+MotionController::MotionController(Motor &leftMotor, Motor &rightMotor)
     : _leftMotor(leftMotor), _rightMotor(rightMotor)
 {
 }
-void MotorController::setup()
+void MotionController::setup()
 {
   _leftMotor.setup();
   _rightMotor.setup();
   _currentAngle = 0;
+  _align = false;
   bumper.setup();
 }
-int MotorController::getCurrentAngle()
+int MotionController::getCurrentAngle()
 {
   return _currentAngle;
 }
 
-void MotorController::setCurrentAngle(int angle)
+void MotionController::setCurrentAngle(int angle)
 {
   _currentAngle = angle;
 }
 
-void MotorController::setStuck(bool status)
+void MotionController::setStuck(bool status)
 {
   _stuck = status;
 }
 
-void MotorController::forwardDist(int distance)
+void MotionController::setAlign(bool status)
+{
+  _align = status;
+}
+
+void MotionController::forwardDist(int distance)
 {
   leftEncoder.reset();
   rightEncoder.reset();
@@ -71,7 +77,7 @@ void MotorController::forwardDist(int distance)
   }
 }
 
-void MotorController::reverseDist(int distance)
+void MotionController::reverseDist(int distance)
 {
   leftEncoder.reset();
   rightEncoder.reset();
@@ -91,7 +97,7 @@ void MotorController::reverseDist(int distance)
   }
 }
 
-void MotorController::rotate(int angle)
+void MotionController::rotate(int angle)
 {
   leftEncoder.reset();
   rightEncoder.reset();
@@ -120,8 +126,7 @@ void MotorController::rotate(int angle)
     }
   }
   stop();
-
-  
+  _align = false;
 
   if (_stuck == true)
   {
@@ -129,26 +134,33 @@ void MotorController::rotate(int angle)
   }
 }
 
-float MotorController::arcLength(float angle)
+float MotionController::arcLength(float angle)
 {
   float arcLength = (2 * PI * RADIUS * (angle / 360));
   return arcLength;
 }
 
-void MotorController::updateCurrentAngle(int angleChange)
+void MotionController::updateCurrentAngle(int angleChange)
 {
-  _currentAngle += angleChange;
-  if (_currentAngle >= 360)
+  if (_align == false)
   {
-    _currentAngle = _currentAngle - 360;
-  } else if (_currentAngle<0)
-  {
-    _currentAngle = 360 - abs(_currentAngle);
+    _currentAngle += angleChange;
+    if (_currentAngle >= 360)
+    {
+      _currentAngle = _currentAngle - 360;
+    }
+    else if (_currentAngle < 0)
+    {
+      _currentAngle = 360 - abs(_currentAngle);
+    }
   }
-  
+  else
+  {
+    return;
+  }
 }
 
-void MotorController::avoid(void)
+void MotionController::avoid(void)
 {
   motorControl.setStuck(false);
   motorControl.stop();
@@ -156,7 +168,7 @@ void MotorController::avoid(void)
   Serial.println("avoiding");
 }
 
-void MotorController::stop()
+void MotionController::stop()
 {
   _leftMotor.stop();
   _rightMotor.stop();

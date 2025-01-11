@@ -1,6 +1,6 @@
 
-#ifndef MotorController_h
-#define MotorController_h
+#ifndef MotionController_h
+#define MotionController_h
 #include "Arduino.h"
 #include "MotorClass.h"
 #include "mbed.h"
@@ -12,10 +12,10 @@
 
 using namespace mbed;
 
-class MotorController
+class MotionController
 {
 public:
-  MotorController(Motor &leftMotor, Motor &rightMotor);
+  MotionController(Motor &leftMotor, Motor &rightMotor);
   void forwardDist(int distance);
   void reverseDist(int distance);
   void rotate(int angle);
@@ -24,6 +24,7 @@ public:
   int getCurrentAngle();
   void setCurrentAngle(int);
   void setStuck(bool status);
+  void setAlign(bool status);
 
 private:
   Motor &_leftMotor;
@@ -36,6 +37,7 @@ private:
   bool _forwardDirection;
   int _currentAngle;
   bool _stuck;
+  bool _align;
 };
-extern MotorController motorControl;
+extern MotionController motorControl;
 #endif

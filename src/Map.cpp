@@ -5,7 +5,7 @@
 #include "Adafruit_NeoPixel.h"
 #include "Adafruit_NeoMatrix.h"
 #include "Adafruit_GFX.h"
-#include "MotorController.h"
+#include "MotionController.h"
 
 int previousLocation[2];
 int currentLocation[2];

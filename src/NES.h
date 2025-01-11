@@ -2,7 +2,7 @@
 #define NES_H
 
 #include "mbed.h"
-#include "MotorController.h"
+#include "MotionController.h"
 #include "NESControllerInterface.h"
 
 using namespace mbed;
