@@ -19,6 +19,7 @@ int IR::read()
   wait_us(5000);
   i2c.read(_IR_addr, _cmd, 2);
 
-  _conversionArray[0] = _cmd[0], _cmd[1];
-  return (_conversionArray[0] * 0.2);
+  //_conversionArray[0] = _cmd[0], _cmd[1];
+  _rawData = ((_cmd[0]<<8)|_cmd[1]);
+  return (_rawData/100);
 }

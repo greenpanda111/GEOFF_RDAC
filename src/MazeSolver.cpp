@@ -3,7 +3,7 @@
 #include "IR.h"
 #include "Map.h"
 
-#define DIST_BETWEEN_FRONT_IR 3.5
+#define DIST_BETWEEN_FRONT_IR 35
 
 IR frontLeftIR(LEFT_FRONT);
 IR frontRightIR(RIGHT_FRONT);
@@ -118,27 +118,27 @@ void solveMaze()
 
     case WALL_ALIGN:
     {
+        for (int i=0;i<3;i++){
         frontIRAveraging();
         float left = frontIRList[0];
         float right = frontIRList[1];
         float theta = 0;
 
-        if (abs(left - right) < 1)
+        if (abs(left - right) < 2)
         {
         }
         else if (right > left)
         {
-            theta = 180/PI * atan((right - left) / DIST_BETWEEN_FRONT_IR);
+            theta = (180/PI) * atan((right - left) / DIST_BETWEEN_FRONT_IR);
             motorControl.rotate(theta);
         }
         else if (left > right)
         {
-            theta = 180/PI * atan((left - right) / DIST_BETWEEN_FRONT_IR);
+            theta = (180/PI) * atan((left - right) / DIST_BETWEEN_FRONT_IR);
             motorControl.rotate(-theta);
         }
-        Serial.println(left);
-        Serial.println(right);
-        Serial.println(theta);
+        //wait_us(2000000);
+        }
         //movementMode = DIST_FROMT_WALL;
         break;
     }
@@ -148,13 +148,13 @@ void solveMaze()
         IRAveraging();
         float front = IROutputList[0];
 
-        if (front > 7)
+        if (front > 70)
         {
-            motorControl.forwardDist(10*(front-7));
+            motorControl.forwardDist((front-70));
         }
         else
         {
-            motorControl.reverseDist(10 * (7 - front));
+            motorControl.reverseDist((70 - front));
         }
         movementMode = FOLLOW_OBSTACLE;
         break;
@@ -163,13 +163,13 @@ void solveMaze()
     {
         IRAveraging();
         // if left is clear
-        if (IROutputList[1] >= 10)
+        if (IROutputList[1] >= 100)
         {
             // turn left
             motorControl.rotate(-90);
         }
 
-        else if (IROutputList[2] >= 10)
+        else if (IROutputList[2] >= 100)
         {
             // turn right
             motorControl.rotate(90);
@@ -197,4 +197,11 @@ void IROutput()
     Serial.println(IROutputList[1]);
     Serial.print("SIDE RIGHT: ");
     Serial.println(IROutputList[2]);
+}
+
+void frontIROutput(){
+    Serial.print("Left: ");
+    Serial.println(frontIRList[0]);
+    Serial.print("Right: ");
+    Serial.println(frontIRList[1]);
 }

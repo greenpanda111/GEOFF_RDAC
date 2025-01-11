@@ -73,10 +73,10 @@ void loop()
   // matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   // matrix.drawPixel(0,0,matrix.Color(255,255,255));
 
-  // IRAveraging();
-
-  //IROutput();
-   solveMaze();
+  //IRAveraging();
+  frontIRAveraging();
+  frontIROutput();
+  solveMaze();
 
   wait_us(STD_DELAY);
 

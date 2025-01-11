@@ -10,5 +10,6 @@ void IROutput(void);
 void mazeSolverSetup(void);
 float IRAveraging(void);
 float frontIRAveraging(void);
+void frontIROutput(void);
 
 #endif //MAZESOLVER_H

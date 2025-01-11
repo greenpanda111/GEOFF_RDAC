@@ -19,6 +19,7 @@ public:
 private:
     int _distance;
     char _conversionArray[1];
+    int _rawData;
     const char _mux_addr = 0xEE;
     const char _IR_addr = 0x80;
     char _cmd[2];
