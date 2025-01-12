@@ -10,19 +10,48 @@
 int previousLocation[2];
 int currentLocation[2];
 
-const unsigned char PROGMEM bitmap[] ={
+const unsigned char PROGMEM bitmap[] = {
 
-     0xff, 0xff, 0x9e, 0x19, 0x90, 0x11, 0x90, 0x71, 0x80, 0x1, 0x80, 0x1, 
-  0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x84, 0x1, 0x86, 0x71, 0x90, 0x41, 
-  0x90, 0x41, 0x90, 0x41, 0x93, 0x41, 0xff, 0xff, 
+    0xff,
+    0xff,
+    0x9e,
+    0x19,
+    0x90,
+    0x11,
+    0x90,
+    0x71,
+    0x80,
+    0x1,
+    0x80,
+    0x1,
+    0x84,
+    0x1,
+    0x84,
+    0x1,
+    0x84,
+    0x1,
+    0x84,
+    0x1,
+    0x86,
+    0x71,
+    0x90,
+    0x41,
+    0x90,
+    0x41,
+    0x90,
+    0x41,
+    0x93,
+    0x41,
+    0xff,
+    0xff,
 };
 
 using namespace mbed;
 
-    Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, MAP_PIN,
-                                                   NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
-                                                       NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
-                                                   NEO_BGR + NEO_KHZ800);
+Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(8, 8, 2, 2, MAP_PIN,
+                                               NEO_TILE_BOTTOM + NEO_TILE_LEFT + NEO_TILE_ROWS + NEO_TILE_ZIGZAG +
+                                                   NEO_MATRIX_BOTTOM + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
+                                               NEO_BGR + NEO_KHZ800);
 
 void mapSetup()
 {
@@ -32,7 +61,7 @@ void mapSetup()
     matrix.setBrightness(10);
     matrix.setTextColor(matrix.Color(0, 0, 255));
     matrix.setCursor(0, 0);
-    mapDrawBoundary();
+    mapReset();
     matrix.show();
 }
 
@@ -52,41 +81,52 @@ void mapOverwriteLocation(int newLocation[2])
     currentLocation[0] = newLocation[0];
     currentLocation[1] = newLocation[1];
     mapUpdate();
-    
 }
 
-void mapUpdate(void) {
-    
+void mapUpdate(void)
+{
+
     matrix.drawPixel(previousLocation[0], previousLocation[1], OFF);
     matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
-
     matrix.show();
 }
 
-void mapTranslation(int distance)
+void mapUpdateLocation(int distance)
 {
-    
     int angle = motorControl.getCurrentAngle();
-    if (angle==0){
-        currentLocation[0]+=distance;
+    if (angle == 0)
+    {
+        currentLocation[0] += distance;
     }
-    else if (angle==90){
-        currentLocation[1]+=distance;
+    else if (angle == 90)
+    {
+        currentLocation[1] += distance;
     }
-    else if (angle==180){
-        currentLocation[0]-=distance;
+    else if (angle == 180)
+    {
+        currentLocation[0] -= distance;
     }
-    else if (angle==270){
-        currentLocation[1]-=distance;
+    else if (angle == 270)
+    {
+        currentLocation[1] -= distance;
     }
-    else{
-       Serial.println("Needs aligning");
+    else
+    {
     }
-    
+
     mapUpdate();
+}
+
+int getCurrentX(void)
+{
+    return currentLocation[0];
+}
+int getCurrentY(void){
+    return currentLocation[1];
 }
 
 void mapDrawBoundary()
 {
-    matrix.drawRect(2,0,12,16,GREEN);
+    matrix.drawRect(2, 0, 12, 16, GREEN);
 }
+

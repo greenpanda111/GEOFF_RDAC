@@ -20,7 +20,9 @@ void mapSetup(void);
 void mapReset(void);
 void mapOverwriteLocation(int newLocation[2]);
 void mapUpdate(void);
-void mapTranslation(int distance);
-void mapDrawBoundary();
+void mapDrawBoundary(void);
+void mapUpdateLocation(int distance);
+int getCurrentX(void);
+int  getCurrentY(void);
 
 #endif

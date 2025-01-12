@@ -9,5 +9,8 @@ void solveMaze(void);
 void IROutput(void);
 void mazeSolverSetup(void);
 float IRAveraging(void);
+void wallAlign(void);
+void moveToObstacle(void);
+void rotateToFinish(void);
 
 #endif //MAZESOLVER_H
