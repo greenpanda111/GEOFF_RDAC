@@ -23,11 +23,13 @@ void loop()
 
   //IRAveraging();
   //IROutput();
-  //solveMaze();
-  motorControl.forwardDist(100);
+  solveMaze();
+  //motorControl.forwardDist(100);
   Serial.print(getCurrentX());
   Serial.print(", ");
   Serial.println(getCurrentY());
+  //wait_us(STD_DELAY);
+  //motorControl.rotate(90);
   wait_us(STD_DELAY);
 
   Serial.println();

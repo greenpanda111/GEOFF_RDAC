@@ -10,9 +10,9 @@
 
 #define OFF matrix.Color(0,0,0)
 #define WHITE matrix.Color(255,255,255)
-#define BLUE matrix.Color(0,255,0)
+#define RED matrix.Color(0,255,0)
 #define GREEN matrix.Color(0,0,255)
-#define RED matrix.Color(255,0,0)
+#define BLUE matrix.Color(255,0,0)
 
 using namespace mbed;
 
@@ -23,6 +23,6 @@ void mapUpdate(void);
 void mapDrawBoundary(void);
 void mapUpdateLocation(int distance);
 int getCurrentX(void);
-int  getCurrentY(void);
+int getCurrentY(void);
 
 #endif

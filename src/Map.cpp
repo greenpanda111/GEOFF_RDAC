@@ -69,10 +69,11 @@ void mapReset()
 {
     matrix.fillScreen(OFF);
     mapDrawBoundary();
-    previousLocation[0] = 0;
-    previousLocation[1] = 0;
-    currentLocation[0] = 0;
-    currentLocation[1] = 0;
+    previousLocation[0] = 3;
+    previousLocation[1] = 14;
+    currentLocation[0] = 3;
+    currentLocation[1] = 14;
+    matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
     matrix.show();
 }
 
@@ -85,8 +86,7 @@ void mapOverwriteLocation(int newLocation[2])
 
 void mapUpdate(void)
 {
-
-    matrix.drawPixel(previousLocation[0], previousLocation[1], OFF);
+    matrix.drawLine(previousLocation[0], previousLocation[1],currentLocation[0], currentLocation[1],RED);
     matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
     matrix.show();
 }
@@ -96,32 +96,36 @@ void mapUpdateLocation(int distance)
     int angle = motorControl.getCurrentAngle();
     if (angle == 0)
     {
-        currentLocation[0] += distance;
+        currentLocation[1] -= distance/120;
     }
     else if (angle == 90)
     {
-        currentLocation[1] += distance;
+        currentLocation[0] -= distance/120;
     }
     else if (angle == 180)
     {
-        currentLocation[0] -= distance;
+        currentLocation[1] += distance/120;
     }
     else if (angle == 270)
     {
-        currentLocation[1] -= distance;
+        currentLocation[0] += distance/120;
     }
     else
     {
     }
-
     mapUpdate();
+    previousLocation[0] = currentLocation[0];
+    previousLocation[1] = currentLocation[1];
+
+    
 }
 
 int getCurrentX(void)
 {
     return currentLocation[0];
 }
-int getCurrentY(void){
+int getCurrentY(void)
+{
     return currentLocation[1];
 }
 
@@ -129,4 +133,3 @@ void mapDrawBoundary()
 {
     matrix.drawRect(2, 0, 12, 16, GREEN);
 }
-
