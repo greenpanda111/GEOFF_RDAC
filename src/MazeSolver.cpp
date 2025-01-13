@@ -12,6 +12,7 @@
 #define FRONT_IR 0
 #define LEFT_IR 1
 #define RIGHT_IR 2
+#define PAUSE_MOVEMENT_DELAY 300000
 
 IR frontLeftIR(LEFT_FRONT);
 IR frontRightIR(RIGHT_FRONT);
@@ -22,12 +23,19 @@ enum MovementMode
 {
     DRIVE_TO_FINISH,
     FOLLOW_OBSTACLE,
+    SELECT_DIRECTION,
     STOP
 };
 
 MovementMode movementMode;
 // list to store front and side sensors readings
 float IROutputList[5];
+
+int angleToRotate = 0;
+bool canMoveLeft = false;
+bool canMoveRight = false;
+bool canMoveForward = true;
+bool canMoveBackward = true;
 
 void IRAveraging()
 {
@@ -105,9 +113,9 @@ void IRAveraging()
         wait_us(1000);
     }
 
-    IROutputList[0] = frontSum / AVERAGING_RESOLUTION;
-    IROutputList[1] = leftSum / AVERAGING_RESOLUTION;
-    IROutputList[2] = rightSum / AVERAGING_RESOLUTION;
+    IROutputList[FRONT_IR] = frontSum / AVERAGING_RESOLUTION;
+    IROutputList[LEFT_IR] = leftSum / AVERAGING_RESOLUTION;
+    IROutputList[RIGHT_IR] = rightSum / AVERAGING_RESOLUTION;
     IROutputList[3] = frontLeft;
     IROutputList[4] = frontRight;
 }
@@ -123,7 +131,7 @@ void wallAlign()
     motorControl.setAlign(true);
     for (int i = 0; i < 2; i++)
     {
-        
+
         IRAveraging();
         float left = IROutputList[3];
         float right = IROutputList[4];
@@ -142,7 +150,6 @@ void wallAlign()
             theta = (180 / PI) * atan((left - right) / DIST_BETWEEN_FRONT_IR);
             motorControl.rotate(-theta);
         }
-        
     }
     motorControl.setAlign(false);
     IRAveraging();
@@ -168,11 +175,6 @@ void moveToObstacle()
     {
         // move until next obstacle
         motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
-    }
-    else
-    {
-        
-        
     }
     wallAlign();
     drawObstacle();
@@ -218,13 +220,13 @@ void solveMaze()
         rotateToFinish();
         moveToObstacle();
 
-        if (getCurrentX() <= 3)
+        if (getCurrentX() <= 2)
         {
             movementMode = STOP;
         }
         else
         {
-            movementMode = FOLLOW_OBSTACLE;
+            movementMode = SELECT_DIRECTION;
         }
 
         break;
@@ -232,39 +234,91 @@ void solveMaze()
 
     case FOLLOW_OBSTACLE:
     {
-        IRAveraging();
-        int angleToRotate=0;
-        
-        if (IROutputList[RIGHT_IR] >= 200)
-        {
-            angleToRotate = -90;
-        }
-        else if (IROutputList[LEFT_IR] >= 200)
-        {
-            angleToRotate = 90;
-        }
-        else
-        {
-            angleToRotate = 180;
-        }
-        
-        wait_us(300000);
-
         while (IROutputList[FRONT_IR] < 150)
         {
             motorControl.rotate(angleToRotate);
             motorControl.forwardDist(SHUFFLE_DISTANCE);
-            wait_us(300000);
+            wait_us(PAUSE_MOVEMENT_DELAY);
             rotateToFinish();
+            wait_us(PAUSE_MOVEMENT_DELAY);
             IRAveraging();
             wallAlign();
-            wait_us(300000);
+            wait_us(PAUSE_MOVEMENT_DELAY);
         }
         motorControl.rotate(angleToRotate);
         motorControl.forwardDist(150);
-        wait_us(300000);
+        wait_us(PAUSE_MOVEMENT_DELAY);
         movementMode = DRIVE_TO_FINISH;
-
+        angleToRotate = 0;
+        break;
+    }
+    case SELECT_DIRECTION:
+    {
+        rotateToFinish();
+        IRAveraging();
+        if (IROutputList[FRONT_IR] >= 200)
+        {
+            canMoveForward = true;
+        }
+        else
+        {
+            canMoveForward = false;
+        }
+        if (IROutputList[LEFT_IR] >= 200)
+        {
+            canMoveLeft = true;
+        }
+        else
+        {
+            canMoveLeft = false;
+        }
+        if (IROutputList[RIGHT_IR] >= 200)
+        {
+            canMoveRight = true;
+        }
+        else
+        {
+            canMoveRight = false;
+        }
+        if (canMoveForward == true)
+        {
+            // move forward
+            movementMode = DRIVE_TO_FINISH;
+            break;
+        }
+        else if ((canMoveLeft == true) & (canMoveRight == false))
+        {
+            // go left
+            angleToRotate = -90;
+        }
+        else if ((canMoveLeft == false) & (canMoveRight == true))
+        {
+            // go right
+            angleToRotate = 90;
+        }
+        else if ((canMoveLeft == true) & (canMoveRight == true))
+        {
+            // go right
+            angleToRotate = 90;
+        }
+        else if ((canMoveLeft == false) & (canMoveRight == false))
+        {
+            // reverse
+            motorControl.rotate(180);
+            wait_us(PAUSE_MOVEMENT_DELAY);
+            IRAveraging();
+            if(IROutputList[FRONT_IR]>=200){
+                motorControl.rotate(180);
+                wait_us(PAUSE_MOVEMENT_DELAY);
+                wallAlign();
+                wait_us(PAUSE_MOVEMENT_DELAY);
+                motorControl.reverseDist(200);
+                wait_us(PAUSE_MOVEMENT_DELAY);
+                movementMode=SELECT_DIRECTION;
+                break;
+            }
+        }
+        movementMode = FOLLOW_OBSTACLE;
         break;
     }
     }
@@ -272,7 +326,6 @@ void solveMaze()
 
 void IROutput()
 {
-
     Serial.println("IR:");
     Serial.print("FRONT AVERAGE: ");
     Serial.println(IROutputList[0]);

@@ -16,10 +16,12 @@
 #define YELLOW matrix.Color(0,255,255)
 
 using namespace mbed;
+//"grid" is used in reference to the occupancy grid, internally stored
+//"map" is used to reference both the occupancy grid and LED matrix where appropriate
 
 void mapSetup(void);
 void mapReset(void);
-void mapOverwriteLocation(int newLocation[2]);
+void mapOverwriteLocation(int x, int y);
 void mapUpdate(void);
 void mapDrawBoundary(void);
 void mapUpdateLocation(int distance);

@@ -23,8 +23,8 @@ void loop()
 
   IRAveraging();
   IROutput();
-  solveMaze();
-  printGrid();
+  //solveMaze();
+  //printGrid();
 
   wait_us(STD_DELAY);
 
