@@ -11,7 +11,6 @@ void setup()
 {
   motorControl.setup();
   mapSetup();
-  resetGrid();
   mazeSolverSetup();
 }
 
@@ -24,7 +23,7 @@ void loop()
 
   IRAveraging();
   IROutput();
-  // solveMaze();
+  solveMaze();
   printGrid();
 
   wait_us(STD_DELAY);

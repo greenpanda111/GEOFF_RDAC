@@ -10,7 +10,7 @@
 int previousLocation[2];
 int currentLocation[2];
 
-const char* occupancyGrid[12][16];
+const char *occupancyGrid[12][16];
 
 using namespace mbed;
 
@@ -34,6 +34,7 @@ void mapSetup()
 void mapReset()
 {
     matrix.fillScreen(OFF);
+    resetGrid();
     mapDrawBoundary();
     previousLocation[0] = 3;
     previousLocation[1] = 14;
@@ -55,6 +56,14 @@ void mapUpdate(void)
     matrix.drawLine(previousLocation[0], previousLocation[1], currentLocation[0], currentLocation[1], RED);
     matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
     matrix.show();
+    
+    //updateGrid(currentLocation[0], currentLocation[1], "O");
+    //updateGrid(previousLocation[0], previousLocation[1], "O");
+
+    for (int y = currentLocation[1]; y <= previousLocation[1]; y++)
+    {
+        updateGrid(currentLocation[0], y, "O");
+    }
 }
 
 void mapUpdateLocation(int distance)
@@ -102,6 +111,8 @@ void drawObstacle(void)
 {
     matrix.drawPixel(currentLocation[0], currentLocation[1] - 1, YELLOW);
     matrix.show();
+
+    updateGrid(currentLocation[0], currentLocation[1] - 1, "X");
 }
 
 void resetGrid(void)
@@ -113,6 +124,11 @@ void resetGrid(void)
             occupancyGrid[x][y] = "?";
         }
     }
+}
+
+void updateGrid(int x, int y, const char *object)
+{
+    occupancyGrid[x][y] = object;
 }
 
 void printGrid()

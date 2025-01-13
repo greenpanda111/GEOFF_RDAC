@@ -28,7 +28,7 @@ int getCurrentY(void);
 void errorScreen(void);
 void drawObstacle(void);
 void resetGrid(void);
-void updateGrid(int x, int y, char object);
+void updateGrid(int x, int y, const char* object);
 void printGrid();
 
 #endif
