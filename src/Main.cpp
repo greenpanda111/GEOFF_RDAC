@@ -11,6 +11,7 @@ void setup()
 {
   motorControl.setup();
   mapSetup();
+  resetGrid();
   mazeSolverSetup();
 }
 
@@ -21,15 +22,11 @@ void loop()
   // matrix.drawBitmap(0,0,bitmap,16,16,matrix.Color(0,255,255));
   // matrix.drawPixel(0,0,matrix.Color(255,255,255));
 
-  //IRAveraging();
-  //IROutput();
-  solveMaze();
-  //motorControl.forwardDist(100);
-  Serial.print(getCurrentX());
-  Serial.print(", ");
-  Serial.println(getCurrentY());
-  //wait_us(STD_DELAY);
-  //motorControl.rotate(90);
+  IRAveraging();
+  IROutput();
+  // solveMaze();
+  printGrid();
+
   wait_us(STD_DELAY);
 
   Serial.println();

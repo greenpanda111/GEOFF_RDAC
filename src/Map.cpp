@@ -10,41 +10,7 @@
 int previousLocation[2];
 int currentLocation[2];
 
-const unsigned char PROGMEM bitmap[] = {
-
-    0xff,
-    0xff,
-    0x9e,
-    0x19,
-    0x90,
-    0x11,
-    0x90,
-    0x71,
-    0x80,
-    0x1,
-    0x80,
-    0x1,
-    0x84,
-    0x1,
-    0x84,
-    0x1,
-    0x84,
-    0x1,
-    0x84,
-    0x1,
-    0x86,
-    0x71,
-    0x90,
-    0x41,
-    0x90,
-    0x41,
-    0x90,
-    0x41,
-    0x93,
-    0x41,
-    0xff,
-    0xff,
-};
+const char* occupancyGrid[12][16];
 
 using namespace mbed;
 
@@ -86,7 +52,7 @@ void mapOverwriteLocation(int newLocation[2])
 
 void mapUpdate(void)
 {
-    matrix.drawLine(previousLocation[0], previousLocation[1],currentLocation[0], currentLocation[1],RED);
+    matrix.drawLine(previousLocation[0], previousLocation[1], currentLocation[0], currentLocation[1], RED);
     matrix.drawPixel(currentLocation[0], currentLocation[1], BLUE);
     matrix.show();
 }
@@ -96,19 +62,19 @@ void mapUpdateLocation(int distance)
     int angle = motorControl.getCurrentAngle();
     if (angle == 0)
     {
-        currentLocation[1] -= distance/120;
+        currentLocation[1] -= distance / 100;
     }
     else if (angle == 90)
     {
-        currentLocation[0] -= distance/120;
+        currentLocation[0] -= distance / 100;
     }
     else if (angle == 180)
     {
-        currentLocation[1] += distance/120;
+        currentLocation[1] += distance / 100;
     }
     else if (angle == 270)
     {
-        currentLocation[0] += distance/120;
+        currentLocation[0] += distance / 100;
     }
     else
     {
@@ -116,17 +82,49 @@ void mapUpdateLocation(int distance)
     mapUpdate();
     previousLocation[0] = currentLocation[0];
     previousLocation[1] = currentLocation[1];
-
-    
 }
 
 int getCurrentX(void)
 {
-    return currentLocation[0];
+    return currentLocation[1];
 }
 int getCurrentY(void)
 {
-    return currentLocation[1];
+    return currentLocation[0];
+}
+
+void errorScreen(void)
+{
+    matrix.fillScreen(RED);
+}
+
+void drawObstacle(void)
+{
+    matrix.drawPixel(currentLocation[0], currentLocation[1] - 1, YELLOW);
+    matrix.show();
+}
+
+void resetGrid(void)
+{
+    for (int y = 0; y < 16; y++)
+    {
+        for (int x = 0; x < 12; x++)
+        {
+            occupancyGrid[x][y] = "?";
+        }
+    }
+}
+
+void printGrid()
+{
+    for (int y = 0; y < 16; y++)
+    {
+        for (int x = 0; x < 12; x++)
+        {
+            Serial.print(occupancyGrid[x][y]);
+        }
+        Serial.println("");
+    }
 }
 
 void mapDrawBoundary()

@@ -7,8 +7,11 @@
 #define AVERAGING_RESOLUTION 10
 #define MAX_IR_READING 500
 #define MIN_IR_READING 52
-#define SHUFFLE_DISTANCE 50
+#define SHUFFLE_DISTANCE 100
 #define MAX_DIST_FROM_WALL 100
+#define FRONT_IR 0
+#define LEFT_IR 1
+#define RIGHT_IR 2
 
 IR frontLeftIR(LEFT_FRONT);
 IR frontRightIR(RIGHT_FRONT);
@@ -19,6 +22,7 @@ enum MovementMode
 {
     DRIVE_TO_FINISH,
     FOLLOW_OBSTACLE,
+    STOP
 };
 
 MovementMode movementMode;
@@ -116,9 +120,10 @@ void mazeSolverSetup(void)
 
 void wallAlign()
 {
+    motorControl.setAlign(true);
     for (int i = 0; i < 2; i++)
     {
-        motorControl.setAlign(true);
+        
         IRAveraging();
         float left = IROutputList[3];
         float right = IROutputList[4];
@@ -137,10 +142,11 @@ void wallAlign()
             theta = (180 / PI) * atan((left - right) / DIST_BETWEEN_FRONT_IR);
             motorControl.rotate(-theta);
         }
+        
     }
-
+    motorControl.setAlign(false);
     IRAveraging();
-    float frontDist = IROutputList[0];
+    float frontDist = IROutputList[FRONT_IR];
 
     if (frontDist > MAX_DIST_FROM_WALL)
     {
@@ -156,7 +162,7 @@ void moveToObstacle()
 {
     // check front sensors
     IRAveraging();
-    float frontDist = IROutputList[0];
+    float frontDist = IROutputList[FRONT_IR];
     // if room to move forward
     if (frontDist > MAX_DIST_FROM_WALL)
     {
@@ -165,10 +171,11 @@ void moveToObstacle()
     }
     else
     {
-        motorControl.reverseDist((MAX_DIST_FROM_WALL - frontDist));
-        // align to obstacle
-        wallAlign();
+        
+        
     }
+    wallAlign();
+    drawObstacle();
 }
 
 void rotateToFinish()
@@ -176,11 +183,24 @@ void rotateToFinish()
     // rotate towards finish
     int angle = motorControl.getCurrentAngle();
 
-    if(angle>180){
-        motorControl.rotate(360-angle);
+    if (angle == 90)
+    {
+        motorControl.rotate(-90);
     }
-    else{
-        motorControl.rotate(-angle);
+    else if (angle == 270)
+    {
+        motorControl.rotate(90);
+    }
+    else if (angle == 180)
+    {
+        motorControl.rotate(180);
+    }
+    else if (angle == 0)
+    {
+    }
+    else
+    {
+        errorScreen();
     }
 }
 
@@ -188,56 +208,59 @@ void solveMaze()
 {
     switch (movementMode)
     {
+    case STOP:
+    {
+        motorControl.stop();
+        break;
+    }
     case DRIVE_TO_FINISH:
     {
         rotateToFinish();
         moveToObstacle();
-        movementMode = FOLLOW_OBSTACLE;
+
+        if (getCurrentX() <= 3)
+        {
+            movementMode = STOP;
+        }
+        else
+        {
+            movementMode = FOLLOW_OBSTACLE;
+        }
+
         break;
     }
 
     case FOLLOW_OBSTACLE:
     {
         IRAveraging();
-        int angleToRotate;
-        // if left is clear
-        if (IROutputList[1] >= 150)
+        int angleToRotate=0;
+        
+        if (IROutputList[RIGHT_IR] >= 200)
         {
-            // turn left
-            angleToRotate = 90;
-            motorControl.rotate(90);
-        }
-
-        else if (IROutputList[2] >= 150)
-        {
-            // turn right
             angleToRotate = -90;
-            motorControl.rotate(-90);
+        }
+        else if (IROutputList[LEFT_IR] >= 200)
+        {
+            angleToRotate = 90;
         }
         else
         {
             angleToRotate = 180;
-            motorControl.rotate(180);
         }
+        
         wait_us(300000);
 
-        motorControl.forwardDist(150);
-        wait_us(300000);
-        rotateToFinish();
-        IRAveraging();
-
-        while (IROutputList[0] < 150)
+        while (IROutputList[FRONT_IR] < 150)
         {
             motorControl.rotate(angleToRotate);
-            wait_us(300000);
             motorControl.forwardDist(SHUFFLE_DISTANCE);
+            wait_us(300000);
             rotateToFinish();
             IRAveraging();
             wallAlign();
             wait_us(300000);
         }
         motorControl.rotate(angleToRotate);
-        wait_us(300000);
         motorControl.forwardDist(150);
         wait_us(300000);
         movementMode = DRIVE_TO_FINISH;
@@ -260,5 +283,5 @@ void IROutput()
     Serial.print("FRONT LEFT: ");
     Serial.println(IROutputList[3]);
     Serial.print("FRONT RIGHT: ");
-    Serial.print(IROutputList[4]);
+    Serial.println(IROutputList[4]);
 }

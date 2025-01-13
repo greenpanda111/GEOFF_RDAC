@@ -126,7 +126,6 @@ void MotionController::rotate(int angle)
     }
   }
   stop();
-  _align = false;
 
   if (_stuck == true)
   {
@@ -165,7 +164,7 @@ void MotionController::avoid(void)
   motorControl.setStuck(false);
   motorControl.stop();
   motorControl.reverseDist(50);
-  Serial.println("avoiding");
+  drawObstacle();
 }
 
 void MotionController::stop()
