@@ -9,8 +9,11 @@ using namespace mbed;
 
 void setup()
 {
+  //set up the motor controller and motors
   motorControl.setup();
+  //initialise the LED map and occupancy grid
   mapSetup();
+  //reset robot position and set starting state
   mazeSolverSetup();
 }
 
@@ -18,10 +21,7 @@ void loop()
 {
   Serial.println("Loop Start --------------------------------");
 
-  IRAveraging();
-  IROutput();
   solveMaze();
-  //motorControl.rotate(-90);
   
   wait_us(STD_DELAY);
 

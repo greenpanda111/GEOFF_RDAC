@@ -5,12 +5,9 @@
 
 using namespace mbed;
 
-#define WHEEL_RADIUS 23.75
-#define WHEEL_PI 3.14159
-#define WHEEL_CIRCUMFERENCE 149.15
 #define STEP_CONVERSION 2.2
-#define ONE_ROTATION_TICKS 330
 
+// Both pins are used on the encoder so that direction can be determined by the leading pin's square wave
 class Encoder
 {
 public:
@@ -19,13 +16,12 @@ public:
     float getDistance(void);
     long int getCount(void);
 
-
 private:
     void countPulse(void);
 
     InterruptIn _pinA;
     InterruptIn _pinB;
-
+    
     volatile long int _count;
 };
 

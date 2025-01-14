@@ -9,6 +9,8 @@ using namespace mbed;
 #define RIGHT_SIDE 0x02
 #define RIGHT_FRONT 0x08
 #define LEFT_FRONT 0x04
+#define IR_DELAY 5000
+#define IR_CONVERSION 100
 
 class IR
 {
@@ -17,9 +19,9 @@ public:
     int read();
 
 private:
-    int _distance;
-    char _conversionArray[1];
+    //stores the raw output from the IR sensors
     int _rawData;
+    
     const char _mux_addr = 0xEE;
     const char _IR_addr = 0x80;
     char _cmd[2];
@@ -28,4 +30,4 @@ private:
 
 extern IR ir;
 
-#endif
+#endif //IR_H

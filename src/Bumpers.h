@@ -2,12 +2,13 @@
 #ifndef Bumpers_h
 #define Bumpers_h
 #include "mbed.h"
-#include "Arduino.h"
 using namespace mbed;
 
 #define GPIO_PIN_2 P0_28
 #define GPIO_PIN_3 P0_29
 
+// the bumper consists of two micro switches attached to the front of the robot
+// when either are pressed the robot will reverse
 class Bumper
 {
 public:
@@ -22,4 +23,4 @@ private:
 
 extern Bumper bumper;
 
-#endif
+#endif // BUMPERS_H

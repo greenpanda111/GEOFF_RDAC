@@ -131,9 +131,14 @@ void mazeSolverSetup(void)
 void wallAlign()
 {
     IRAveraging();
-    if (IROutputList[0] > 200)
+    float frontDist = IROutputList[FRONT_IR];
+    if (frontDist > MAX_DIST_FROM_WALL)
     {
-        moveToObstacle();
+        motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
+    }
+    else
+    {
+        motorControl.reverseDist((MAX_DIST_FROM_WALL - frontDist));
     }
     motorControl.setAlign(true);
     for (int i = 0; i < 2; i++)
@@ -160,17 +165,6 @@ void wallAlign()
         }
     }
     motorControl.setAlign(false);
-    IRAveraging();
-    float frontDist = IROutputList[FRONT_IR];
-
-    if (frontDist > MAX_DIST_FROM_WALL)
-    {
-        motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
-    }
-    else
-    {
-        motorControl.reverseDist((MAX_DIST_FROM_WALL - frontDist));
-    }
 }
 
 void moveToObstacle()
@@ -184,7 +178,6 @@ void moveToObstacle()
         // move until next obstacle
         motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
     }
-    wallAlign();
     drawObstacle();
 }
 
@@ -217,61 +210,70 @@ void rotateToFinish()
 void deadEndAvoid(void)
 {
     motorControl.rotate(180);
-    wait_us(PAUSE_MOVEMENT_DELAY);
+    
     IRAveraging();
+    int reverseDist = IROutputList[FRONT_IR];
+    if (reverseDist > SHUFFLE_DISTANCE)
+    {
+        motorControl.rotate(180);
+       
+        wallAlign();
+      
+        motorControl.reverseDist(reverseDist - MAX_DIST_FROM_WALL);
+        
+        IRAveraging();
 
-    motorControl.rotate(180);
-    wait_us(PAUSE_MOVEMENT_DELAY);
-    wallAlign();
-    wait_us(PAUSE_MOVEMENT_DELAY);
-    motorControl.reverseDist(IROutputList[FRONT_IR] + SHUFFLE_DISTANCE);
-    wait_us(PAUSE_MOVEMENT_DELAY);
-
-    IRAveraging();
-
-    if (IROutputList[LEFT_IR] >= TURN_DISTANCE)
-    {
-        canMoveLeft = true;
-    }
-    else
-    {
-        canMoveLeft = false;
-    }
-
-    if (IROutputList[RIGHT_IR] >= TURN_DISTANCE)
-    {
-        canMoveRight = true;
-    }
-    else
-    {
-        canMoveRight = false;
-    }
-
-    if ((canMoveLeft == true) & (canMoveRight == false))
-    {
-        // go left
-        angleToRotate = -90;
-    }
-    else if ((canMoveLeft == false) & (canMoveRight == true))
-    {
-        // go right
-        angleToRotate = 90;
-    }
-    else if ((canMoveLeft == true) & (canMoveRight == true))
-    {
-        if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
+        if (IROutputList[LEFT_IR] >= SHUFFLE_DISTANCE)
         {
-            angleToRotate = -90;
+            canMoveLeft = true;
         }
         else
         {
+            canMoveLeft = false;
+        }
+
+        if (IROutputList[RIGHT_IR] >= SHUFFLE_DISTANCE)
+        {
+            canMoveRight = true;
+        }
+        else
+        {
+            canMoveRight = false;
+        }
+
+        if ((canMoveLeft == true) & (canMoveRight == false))
+        {
+            // go left
+            angleToRotate = -90;
+        }
+        else if ((canMoveLeft == false) & (canMoveRight == true))
+        {
+            // go right
             angleToRotate = 90;
         }
+        else if ((canMoveLeft == true) & (canMoveRight == true))
+        {
+            if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
+            {
+                angleToRotate = -90;
+            }
+            else
+            {
+                angleToRotate = 90;
+            }
+        }
+        motorControl.rotate(angleToRotate);
+        IRAveraging();
+        motorControl.forwardDist(IROutputList[FRONT_IR] - MAX_DIST_FROM_WALL);
+        movementMode = DRIVE_TO_FINISH;
     }
-    motorControl.rotate(angleToRotate);
-    IRAveraging();
-    motorControl.forwardDist(IROutputList[FRONT_IR] - MAX_DIST_FROM_WALL);
-    movementMode = DRIVE_TO_FINISH;
+    else
+    {
+        errorScreen();
+        movementMode = STOP;
+    
+    }
+    return;
 }
 
 void solveMaze()
@@ -288,6 +290,7 @@ void solveMaze()
     {
         rotateToFinish();
         moveToObstacle();
+        wallAlign();
 
         if (getCurrentX() <= 2)
         {
@@ -325,7 +328,6 @@ void solveMaze()
     case SELECT_DIRECTION:
     {
         rotateToFinish();
-        wait_us(PAUSE_MOVEMENT_DELAY);
         IRAveraging();
         if (IROutputList[FRONT_IR] >= MAX_DIST_FROM_WALL)
         {
@@ -336,7 +338,7 @@ void solveMaze()
             canMoveForward = false;
         }
 
-        if (IROutputList[LEFT_IR] >= TURN_DISTANCE)
+        if (IROutputList[LEFT_IR] >= SHUFFLE_DISTANCE)
         {
             canMoveLeft = true;
         }
@@ -345,7 +347,7 @@ void solveMaze()
             canMoveLeft = false;
         }
 
-        if (IROutputList[RIGHT_IR] >= TURN_DISTANCE)
+        if (IROutputList[RIGHT_IR] >= SHUFFLE_DISTANCE)
         {
             canMoveRight = true;
         }
