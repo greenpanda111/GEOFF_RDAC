@@ -8,9 +8,10 @@ using namespace mbed;
 void solveMaze(void);
 void IROutput(void);
 void mazeSolverSetup(void);
-float IRAveraging(void);
+void IRAveraging(void);
 void wallAlign(void);
 void moveToObstacle(void);
 void rotateToFinish(void);
+void deadEndAvoid(void);
 
 #endif //MAZESOLVER_H

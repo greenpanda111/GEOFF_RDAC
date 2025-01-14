@@ -7,7 +7,7 @@
 #include "Adafruit_GFX.h"
 #include "MotionController.h"
 
-#define MAZE_RESOLUTION 100
+#define MAZE_RESOLUTION 120
 #define X 0
 #define Y 1
 #define GRID_X_MAX 12
@@ -119,7 +119,7 @@ void mapUpdateLocation(int distance)
     }
     else if (angle == 90)
     {
-        currentLocation[X] -= distance / MAZE_RESOLUTION;
+        currentLocation[X] += distance / MAZE_RESOLUTION;
     }
     else if (angle == 180)
     {
@@ -127,7 +127,7 @@ void mapUpdateLocation(int distance)
     }
     else if (angle == 270)
     {
-        currentLocation[X] += distance / MAZE_RESOLUTION;
+        currentLocation[X] -= distance / MAZE_RESOLUTION;
     }
     else
     {

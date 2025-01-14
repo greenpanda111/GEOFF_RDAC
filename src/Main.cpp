@@ -20,8 +20,9 @@ void loop()
 
   IRAveraging();
   IROutput();
-  //solveMaze();
-
+  solveMaze();
+  //motorControl.rotate(-90);
+  
   wait_us(STD_DELAY);
 
   Serial.println();

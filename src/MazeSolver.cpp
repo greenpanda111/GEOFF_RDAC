@@ -2,17 +2,25 @@
 #include "MotionController.h"
 #include "IR.h"
 #include "Map.h"
+#include "MazeSolver.h"
 
 #define DIST_BETWEEN_FRONT_IR 35
 #define AVERAGING_RESOLUTION 10
 #define MAX_IR_READING 500
 #define MIN_IR_READING 52
-#define SHUFFLE_DISTANCE 100
+#define SHUFFLE_DISTANCE 150
 #define MAX_DIST_FROM_WALL 100
+#define TURN_DISTANCE 50
 #define FRONT_IR 0
 #define LEFT_IR 1
 #define RIGHT_IR 2
 #define PAUSE_MOVEMENT_DELAY 300000
+
+int angleToRotate = 0;
+bool canMoveLeft = false;
+bool canMoveRight = false;
+bool canMoveForward = true;
+bool canMoveBackward = true;
 
 IR frontLeftIR(LEFT_FRONT);
 IR frontRightIR(RIGHT_FRONT);
@@ -30,12 +38,6 @@ enum MovementMode
 MovementMode movementMode;
 // list to store front and side sensors readings
 float IROutputList[5];
-
-int angleToRotate = 0;
-bool canMoveLeft = false;
-bool canMoveRight = false;
-bool canMoveForward = true;
-bool canMoveBackward = true;
 
 void IRAveraging()
 {
@@ -128,11 +130,17 @@ void mazeSolverSetup(void)
 
 void wallAlign()
 {
+    IRAveraging();
+    if (IROutputList[0] > 200)
+    {
+        moveToObstacle();
+    }
     motorControl.setAlign(true);
     for (int i = 0; i < 2; i++)
     {
 
         IRAveraging();
+
         float left = IROutputList[3];
         float right = IROutputList[4];
         float theta = 0;
@@ -143,12 +151,12 @@ void wallAlign()
         else if (right > left)
         {
             theta = (180 / PI) * atan((right - left) / DIST_BETWEEN_FRONT_IR);
-            motorControl.rotate(theta);
+            motorControl.rotate(-theta);
         }
         else if (left > right)
         {
             theta = (180 / PI) * atan((left - right) / DIST_BETWEEN_FRONT_IR);
-            motorControl.rotate(-theta);
+            motorControl.rotate(theta);
         }
     }
     motorControl.setAlign(false);
@@ -206,6 +214,66 @@ void rotateToFinish()
     }
 }
 
+void deadEndAvoid(void)
+{
+    motorControl.rotate(180);
+    wait_us(PAUSE_MOVEMENT_DELAY);
+    IRAveraging();
+
+    motorControl.rotate(180);
+    wait_us(PAUSE_MOVEMENT_DELAY);
+    wallAlign();
+    wait_us(PAUSE_MOVEMENT_DELAY);
+    motorControl.reverseDist(IROutputList[FRONT_IR] + SHUFFLE_DISTANCE);
+    wait_us(PAUSE_MOVEMENT_DELAY);
+
+    IRAveraging();
+
+    if (IROutputList[LEFT_IR] >= TURN_DISTANCE)
+    {
+        canMoveLeft = true;
+    }
+    else
+    {
+        canMoveLeft = false;
+    }
+
+    if (IROutputList[RIGHT_IR] >= TURN_DISTANCE)
+    {
+        canMoveRight = true;
+    }
+    else
+    {
+        canMoveRight = false;
+    }
+
+    if ((canMoveLeft == true) & (canMoveRight == false))
+    {
+        // go left
+        angleToRotate = -90;
+    }
+    else if ((canMoveLeft == false) & (canMoveRight == true))
+    {
+        // go right
+        angleToRotate = 90;
+    }
+    else if ((canMoveLeft == true) & (canMoveRight == true))
+    {
+        if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
+        {
+            angleToRotate = -90;
+        }
+        else
+        {
+            angleToRotate = 90;
+        }
+    }
+    motorControl.rotate(angleToRotate);
+    IRAveraging();
+    motorControl.forwardDist(IROutputList[FRONT_IR] - MAX_DIST_FROM_WALL);
+    movementMode = DRIVE_TO_FINISH;
+}
+
 void solveMaze()
 {
     switch (movementMode)
@@ -235,8 +303,11 @@ void solveMaze()
 
     case FOLLOW_OBSTACLE:
     {
-        while (IROutputList[FRONT_IR] < 150)
+        IRAveraging();
+
+        while (IROutputList[FRONT_IR] < MAX_DIST_FROM_WALL)
         {
+            drawObstacle();
             motorControl.rotate(angleToRotate);
             motorControl.forwardDist(SHUFFLE_DISTANCE);
             wait_us(PAUSE_MOVEMENT_DELAY);
@@ -246,18 +317,17 @@ void solveMaze()
             wallAlign();
             wait_us(PAUSE_MOVEMENT_DELAY);
         }
-        motorControl.rotate(angleToRotate);
-        motorControl.forwardDist(150);
+
         wait_us(PAUSE_MOVEMENT_DELAY);
         movementMode = DRIVE_TO_FINISH;
-        angleToRotate = 0;
         break;
     }
     case SELECT_DIRECTION:
     {
         rotateToFinish();
+        wait_us(PAUSE_MOVEMENT_DELAY);
         IRAveraging();
-        if (IROutputList[FRONT_IR] >= 200)
+        if (IROutputList[FRONT_IR] >= MAX_DIST_FROM_WALL)
         {
             canMoveForward = true;
         }
@@ -265,7 +335,8 @@ void solveMaze()
         {
             canMoveForward = false;
         }
-        if (IROutputList[LEFT_IR] >= 200)
+
+        if (IROutputList[LEFT_IR] >= TURN_DISTANCE)
         {
             canMoveLeft = true;
         }
@@ -273,7 +344,8 @@ void solveMaze()
         {
             canMoveLeft = false;
         }
-        if (IROutputList[RIGHT_IR] >= 200)
+
+        if (IROutputList[RIGHT_IR] >= TURN_DISTANCE)
         {
             canMoveRight = true;
         }
@@ -281,7 +353,7 @@ void solveMaze()
         {
             canMoveRight = false;
         }
-        
+
         if (canMoveForward == true)
         {
             // move forward
@@ -300,26 +372,21 @@ void solveMaze()
         }
         else if ((canMoveLeft == true) & (canMoveRight == true))
         {
-            // go right
-            angleToRotate = 90;
+            if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
+            {
+                angleToRotate = -90;
+            }
+            else
+            {
+                angleToRotate = 90;
+            }
         }
         else if ((canMoveLeft == false) & (canMoveRight == false))
         {
-            // reverse
-            motorControl.rotate(180);
-            wait_us(PAUSE_MOVEMENT_DELAY);
-            IRAveraging();
-            if(IROutputList[FRONT_IR]>=200){
-                motorControl.rotate(180);
-                wait_us(PAUSE_MOVEMENT_DELAY);
-                wallAlign();
-                wait_us(PAUSE_MOVEMENT_DELAY);
-                motorControl.reverseDist(200);
-                wait_us(PAUSE_MOVEMENT_DELAY);
-                movementMode=SELECT_DIRECTION;
-                break;
-            }
+            deadEndAvoid();
+            break;
         }
+
         movementMode = FOLLOW_OBSTACLE;
         break;
     }

@@ -105,7 +105,7 @@ void MotionController::rotate(int angle)
 
   float distance = arcLength(abs(angle));
 
-  if (angle > 0)
+  if (angle < 0)
   {
     while ((abs(leftMotor.getEncoderDist()) < distance) & (abs(rightMotor.getEncoderDist()) < distance) & (_stuck == false))
     {
@@ -155,7 +155,6 @@ void MotionController::updateCurrentAngle(int angleChange)
   }
   else
   {
-    return;
   }
 }
 
@@ -163,7 +162,7 @@ void MotionController::avoid(void)
 {
   motorControl.setStuck(false);
   motorControl.stop();
-  motorControl.reverseDist(50);
+  motorControl.reverseDist(100);
   drawObstacle();
 }
 
