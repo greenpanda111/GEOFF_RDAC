@@ -213,6 +213,7 @@ void solveMaze()
     case STOP:
     {
         motorControl.stop();
+        printGrid();
         break;
     }
     case DRIVE_TO_FINISH:
@@ -280,6 +281,7 @@ void solveMaze()
         {
             canMoveRight = false;
         }
+        
         if (canMoveForward == true)
         {
             // move forward
@@ -328,11 +330,11 @@ void IROutput()
 {
     Serial.println("IR:");
     Serial.print("FRONT AVERAGE: ");
-    Serial.println(IROutputList[0]);
+    Serial.println(IROutputList[FRONT_IR]);
     Serial.print("SIDE LEFT: ");
-    Serial.println(IROutputList[1]);
+    Serial.println(IROutputList[LEFT_IR]);
     Serial.print("SIDE RIGHT: ");
-    Serial.println(IROutputList[2]);
+    Serial.println(IROutputList[RIGHT_IR]);
     Serial.print("FRONT LEFT: ");
     Serial.println(IROutputList[3]);
     Serial.print("FRONT RIGHT: ");

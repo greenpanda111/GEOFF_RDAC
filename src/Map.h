@@ -14,6 +14,7 @@
 #define GREEN matrix.Color(0,0,255)
 #define BLUE matrix.Color(255,0,0)
 #define YELLOW matrix.Color(0,255,255)
+#define PURPLE matrix.Color(255,255,0)
 
 using namespace mbed;
 //"grid" is used in reference to the occupancy grid, internally stored
@@ -21,7 +22,7 @@ using namespace mbed;
 
 void mapSetup(void);
 void mapReset(void);
-void mapOverwriteLocation(int x, int y);
+void mapOverwriteLocation(int x, int y, int angle);
 void mapUpdate(void);
 void mapDrawBoundary(void);
 void mapUpdateLocation(int distance);
