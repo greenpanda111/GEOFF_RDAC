@@ -90,7 +90,7 @@ void MotionController::reverseDist(int distance)
     _rightMotor.move((DEFAULTSPEED + error));
   }
   stop();
-  mapUpdateLocation(distance);
+  mapUpdateLocation(-distance);
   if (_stuck == true)
   {
     motorControl.avoid();
@@ -162,8 +162,9 @@ void MotionController::avoid(void)
 {
   motorControl.setStuck(false);
   motorControl.stop();
-  motorControl.reverseDist(100);
   drawObstacle();
+  motorControl.reverseDist(100);
+  
 }
 
 void MotionController::stop()
