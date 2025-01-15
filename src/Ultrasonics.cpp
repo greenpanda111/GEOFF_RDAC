@@ -10,40 +10,46 @@ Ultrasonic::Ultrasonic(PinName ultrasonicPin)
 
 void Ultrasonic::correction()
 {
+  // Reset timer
   _sonar.reset();
+  // Start timer
   _sonar.start();
   _ultrasonicPin.input();
   while (_ultrasonicPin.read() == 2)
   {
   };
+  // Stop timer
   _sonar.stop();
+  // Save time taken
   _offset = _sonar.read_us();
 }
 
 int Ultrasonic::read()
 {
+  // Reset Timer
   _sonar.reset();
-  // send ping
+  // Send pulse
   _ultrasonicPin.output();
   _ultrasonicPin = 1;
-  // wait for set pulse width
+  // Wait for set pulse width
   wait_us(10);
-  // stop ping
+  // Stop ping
   _ultrasonicPin = 0;
-  // wait for echo high
+  // Wait for echo high
   _ultrasonicPin.input();
   while (_ultrasonicPin.read() == 0)
   {
   };
-  // start timer
+  // Start timer
   _sonar.start();
-  // wait for echo low
+  // Wait for echo low
   while (_ultrasonicPin.read() == 1)
   {
   };
-  // stop timer
+  // Stop timer
   _sonar.stop();
-  // read timer and convert and correct
+  // Read timer
+  // Convert and correct
   _distance = (_sonar.read_us() - _offset) / 58;
   return _distance;
 }

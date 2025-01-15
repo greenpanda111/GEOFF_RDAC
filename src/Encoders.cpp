@@ -12,8 +12,8 @@ Encoder::Encoder(PinName pinA, PinName pinB)
 
 float Encoder::getDistance(void)
 {
-    // converts count to distance in mm
-    return (float)_count/(float)STEP_CONVERSION;
+    // Converts encoder count to distance in mm
+    return (float)_count / (float)STEP_CONVERSION;
 }
 
 long int Encoder::getCount(void)
@@ -23,13 +23,17 @@ long int Encoder::getCount(void)
 
 void Encoder::countPulse(void)
 {
+    // If pin A is leading
     if (_pinA != _pinB)
     {
-
+        // The motor is spinning forward
+        // Increment count
         _count++;
     }
+    // If pin B is leading
     else
     {
+        // The motor is spinning backward
         _count--;
     }
 }

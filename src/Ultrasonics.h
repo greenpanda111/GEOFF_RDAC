@@ -1,8 +1,7 @@
 #ifndef Ultrasonics_h
 #define Ultrasonics_h
-#include "Arduino.h"
-
 #include "mbed.h"
+
 using namespace mbed;
 
 #define LEFT_ULTRASONIC_SENSOR_PIN P1_13
@@ -12,7 +11,10 @@ class Ultrasonic
 {
 public:
     Ultrasonic(PinName ultrasonicPin);
+    // Measure the software polling timer delay
+    // Run at start up
     void correction();
+    // Send a pulse and return the distance measured 
     int read();
 
 private:
@@ -24,4 +26,4 @@ private:
 
 extern Ultrasonic ultrasonic;
 
-#endif
+#endif // ULTRASONICS_H

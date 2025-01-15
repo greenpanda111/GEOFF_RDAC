@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "MotorClass.h"
 #include "Encoders.h"
 
@@ -12,21 +11,27 @@ Motor::Motor(PinName PwmPin, PinName dirPin, bool forwardDirection, Encoder &enc
 
 void Motor::setup(void)
 {
-  _PwmPin.period(PWM_Period);
+  _PwmPin.period(PWM_PERIOD);
+  // Set motor power to 0 so they start off by default
   _PwmPin.write(0.0f);
+  // Calculate velocity every ticker period
   _velocityTicker.attach(callback(this, &Motor::calculateCurrentVelocity), VELOCITY_TICKER_PERIOD);
 }
 
 void Motor::move(float power)
 {
+  // If power given is positive
   if (power > 0)
   {
+    // Change motor direction so that it drives forward relative to the robot
     _dirPin.write(_forwardDirection);
   }
   else
   {
+    // Reverse motor direction
     _dirPin.write(!_forwardDirection);
   }
+  // Rotate the motor at the given power
   _PwmPin.write(abs(power));
 }
 
@@ -37,7 +42,8 @@ void Motor::stop(void)
 
 void Motor::calculateCurrentVelocity(void)
 {
-  // velocity in mm/s
+  // Velocity in mm/s
+  // Change in distance over known time
   _currentVelocity = (abs(_encoder.getDistance()) - _lastEncoderDist) / VELOCITY_TICKER_PERIOD;
   _lastEncoderDist = abs(_encoder.getDistance());
 }
