@@ -1,4 +1,3 @@
-#include "Arduino.h"
 #include "MotorClass.h"
 #include "Encoders.h"
 

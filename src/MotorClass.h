@@ -37,4 +37,4 @@ private:
 
 extern Motor leftMotor;
 extern Motor rightMotor;
-#endif
+#endif // MOTORCLASS_H

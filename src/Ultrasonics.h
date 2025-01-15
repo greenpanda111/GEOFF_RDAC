@@ -24,4 +24,4 @@ private:
 
 extern Ultrasonic ultrasonic;
 
-#endif
+#endif // ULTRASONICS_H
