@@ -28,13 +28,13 @@ bool canMoveRight = false;
 bool canMoveForward = true;
 bool canMoveBackward = true;
 
-// build IR objects with all four addresses
+// Build IR objects with all four addresses
 IR frontLeftIR(LEFT_FRONT);
 IR frontRightIR(RIGHT_FRONT);
 IR sideLeftIR(LEFT_SIDE);
 IR sideRightIR(RIGHT_SIDE);
 
-// different states for switch case finite state machine
+// Different states for switch case finite state machine
 enum MovementMode
 {
     DRIVE_TO_FINISH,
@@ -45,12 +45,12 @@ enum MovementMode
 
 MovementMode movementMode;
 
-// list to store front and side sensors readings
+// List to store front and side sensors readings
 float IROutputList[5];
 
 void IRAveraging()
 {
-    // define temparary variables to store data to be written to IR array
+    // Define temparary variables to store data to be written to IR array
     float frontSum = 0;
     float leftSum = 0;
     float rightSum = 0;
@@ -64,16 +64,16 @@ void IRAveraging()
     float leftToAdd = 0;
     float rightToAdd = 0;
 
-    // take as many readings as the resolution dictates
+    // Take as many readings as the resolution dictates
     for (int i = 0; i < AVERAGING_RESOLUTION; i++)
     {
-        // read both front sensors
+        // Read both front sensors
         frontLeft = frontLeftIR.read();
         frontRight = frontRightIR.read();
         frontLeftToAdd = frontLeft;
         frontRightToAdd = frontRight;
 
-        // if one sensor senses something close but the other senses something far, take the smaller reading
+        // If one sensor senses something close but the other senses something far, take the smaller reading
         if (abs(frontLeft - frontRight) > 120)
         {
             if (frontLeft > frontRight)
@@ -85,13 +85,13 @@ void IRAveraging()
                 frontRight = frontLeft;
             }
         }
-        // average the front two sensors into one
+        // Average the front two sensors into one
         frontToAdd = (frontLeft + frontRight) / 2;
-        // read the side sensors
+        // Read the side sensors
         leftToAdd = sideLeftIR.read();
         rightToAdd = sideRightIR.read();
 
-        // cap front sensor measurments within bounds
+        // Cap front sensor measurments within bounds
         frontToAdd = fmax(fmin(frontToAdd, MAX_IR_READING), MIN_IR_READING);
         frontSum += frontToAdd;
 
@@ -110,7 +110,7 @@ void IRAveraging()
         wait_us(1000);
     }
 
-    // divide reading sums by the number of times looped
+    // Divide reading sums by the number of times looped
     IROutputList[FRONT_IR] = frontSum / AVERAGING_RESOLUTION;
     IROutputList[LEFT_IR] = leftSum / AVERAGING_RESOLUTION;
     IROutputList[RIGHT_IR] = rightSum / AVERAGING_RESOLUTION;
@@ -120,19 +120,19 @@ void IRAveraging()
 
 void mazeSolverSetup(void)
 {
-    // set starting state to drive to the finish
+    // Set starting state to drive to the finish
     movementMode = DRIVE_TO_FINISH;
-    // set starting angle to be facing the finish
+    // Set starting angle to be facing the finish
     motorControl.setCurrentAngle(0);
 }
 
 void wallAlign()
 {
-    // take sensor measurements
+    // Take sensor measurements
     IRAveraging();
     float frontDist = IROutputList[FRONT_IR];
 
-    // move to a set distance from the wall infront
+    // Move to a set distance from the wall infront
     if (frontDist > MAX_DIST_FROM_WALL)
     {
         motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
@@ -142,55 +142,55 @@ void wallAlign()
         motorControl.reverseDist((MAX_DIST_FROM_WALL - frontDist));
     }
 
-    // set alignment flag high so that the angle of the robot is not changed when turning to align
+    // Set alignment flag high so that the angle of the robot is not changed when turning to align
     motorControl.setAlign(true);
 
-    // align multiple times to increase accuracy
+    // Align multiple times to increase accuracy
     for (int i = 0; i < ALIGNMENT_ATTEMPTS; i++)
     {
-        // take sensore measurements
+        // Take sensore measurements
         IRAveraging();
         float left = IROutputList[FRONT_LEFT_IR];
         float right = IROutputList[FRONT_RIGHT_IR];
         float theta;
 
-        // if sensors are almost identical, don't align
+        // If sensors are almost identical, don't align
         if (abs(left - right) < MIN_ALIGNMENT_DIFFERENCE)
         {
         }
 
         else if (right > left)
         {
-            // calculate angle to turn and convert from radians to degrees
+            // Calculate angle to turn and convert from radians to degrees
             theta = (180 / PI) * atan((right - left) / DIST_BETWEEN_FRONT_IR);
-            // rotate counterclockwise
+            // Rotate counterclockwise
             motorControl.rotate(-theta);
         }
         else if (left > right)
         {
-            // calculate angle to turn and convert from radians to degrees
+            // Calculate angle to turn and convert from radians to degrees
             theta = (180 / PI) * atan((left - right) / DIST_BETWEEN_FRONT_IR);
-            // rotate clockwise
+            // Rotate clockwise
             motorControl.rotate(theta);
         }
     }
-    // set alignment flag low so any future turns will change the angle of the robot
+    // Set alignment flag low so any future turns will change the angle of the robot
     motorControl.setAlign(false);
 }
 
 void moveToObstacle()
 {
-    // take sensor measurements
+    // Take sensor measurements
     IRAveraging();
     float frontDist = IROutputList[FRONT_IR];
 
-    // if room to move forward
+    // If room to move forward
     if (frontDist > MAX_DIST_FROM_WALL)
     {
-        // move until next obstacle
+        // Move until next obstacle
         motorControl.forwardDist((frontDist - MAX_DIST_FROM_WALL));
     }
-    // save obstacle location to occupancy grid and draw it onto the matrix
+    // Save obstacle location to occupancy grid and draw it onto the matrix
     drawObstacle();
 }
 
@@ -198,56 +198,57 @@ void rotateToFinish()
 {
     int angle = motorControl.getCurrentAngle();
 
-    // if facing right
+    // If facing right
     if (angle == 90)
     {
-        // turn left
+        // Turn left
         motorControl.rotate(-90);
     }
-    // if facing left
+    // If facing left
     else if (angle == 270)
     {
-        // turn right
+        // Turn right
         motorControl.rotate(90);
     }
-    // if facing away from finish
+    // If facing away from finish
     else if (angle == 180)
     {
-        // turn 180
+        // Turn 180
         motorControl.rotate(180);
     }
-    // do nothing if already facing finish
+    // Do nothing if already facing finish
     else if (angle == 0)
     {
     }
     else
     {
+        // angle should only ever be changed by 90
         errorScreen();
     }
 }
 
 void deadEndAvoid(void)
 {
-    // turn away from dead end
+    // Turn away from dead end
     motorControl.rotate(180);
 
-    // take sensor measurements
+    // Take sensor measurements
     IRAveraging();
     int reverseDist = IROutputList[FRONT_IR];
 
-    // check if there is room to reverse
+    // Check if there is room to reverse
     if (reverseDist > SHUFFLE_DISTANCE)
     {
-        // turn back to face dead end
+        // Turn back to face dead end
         motorControl.rotate(180);
-        // align to the wall infront
+        // Align to the wall infront
         wallAlign();
-        // reverse out of dead end
+        // Reverse out of dead end
         motorControl.reverseDist(DEAD_END_REVERSE_DIST);
-        // take sensor measurementes
+        // Take sensor measurementes
         IRAveraging();
 
-        // check  to see what directions are clear
+        // Check  to see what directions are clear
         if (IROutputList[LEFT_IR] >= SHUFFLE_DISTANCE)
         {
             canMoveLeft = true;
@@ -266,22 +267,22 @@ void deadEndAvoid(void)
             canMoveRight = false;
         }
 
-        // if there is only room to move left
+        // If there is only room to move left
         if ((canMoveLeft == true) & (canMoveRight == false))
         {
-            // go left
+            // Go left
             angleToRotate = -90;
         }
-        // if there is only room to move right
+        // If there is only room to move right
         else if ((canMoveLeft == false) & (canMoveRight == true))
         {
-            // go right
+            // Go right
             angleToRotate = 90;
         }
-        // if both directions are available
+        // If both directions are available
         else if ((canMoveLeft == true) & (canMoveRight == true))
         {
-            // choose the direction with the most room
+            // Choose the direction with the most room
             if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
             {
                 angleToRotate = -90;
@@ -292,16 +293,16 @@ void deadEndAvoid(void)
             }
         }
 
-        // rotate to the decided direction
+        // Rotate to the decided direction
         motorControl.rotate(angleToRotate);
-        // take sensor measurements
+        // Take sensor measurements
         IRAveraging();
-        // move until a wall is reached
+        // Move until a wall is reached
         motorControl.forwardDist(IROutputList[FRONT_IR] - MAX_DIST_FROM_WALL);
-        // attempt to drive to the finish
+        // Attempt to drive to the finish
         movementMode = DRIVE_TO_FINISH;
     }
-    // assume the robot is fully enclosed
+    // Assume the robot is fully enclosed
     else
     {
         errorScreen();
@@ -314,33 +315,33 @@ void solveMaze()
 {
     switch (movementMode)
     {
-    // state for when the robot is at the finish or blocked in
+    // State for when the robot is at the finish or blocked in
     case STOP:
     {
-        // stop all motors
+        // Stop all motors
         motorControl.stop();
-        // print the occupancy grid to serial
+        // Print the occupancy grid to serial
         printGrid();
         break;
     }
     case DRIVE_TO_FINISH:
     {
-        // face the finish
+        // Face the finish
         rotateToFinish();
-        // drive to the nearest obstacle
+        // Drive to the nearest obstacle
         moveToObstacle();
-        // wall align to the obstacle
+        // Wall align to the obstacle
         wallAlign();
 
-        // if the robot is at the end of the map
+        // If the robot is at the end of the map
         if (getCurrentX() <= FINISH_X)
         {
-            // set end state
+            // Set end state
             movementMode = STOP;
         }
         else
         {
-            // change state to decide which way to move in
+            // Change state to decide which way to move in
             movementMode = SELECT_DIRECTION;
         }
 
@@ -349,36 +350,36 @@ void solveMaze()
 
     case FOLLOW_OBSTACLE:
     {
-        // take sensor measurements
+        // Take sensor measurements
         IRAveraging();
-        // while there is not room to move forward
+        // While there is not room to move forward
         while (IROutputList[FRONT_IR] < MAX_DIST_FROM_WALL)
         {
-            // save location of obstacle
+            // Save location of obstacle
             drawObstacle();
-            // continue to head in the decided direction
+            // Continue to head in the decided direction
             motorControl.rotate(angleToRotate);
             motorControl.forwardDist(SHUFFLE_DISTANCE);
-            // face the finish
+            // Face the finish
             rotateToFinish();
-            // take sensor measurements
+            // Take sensor measurements
             IRAveraging();
-            // align to the obstacle
+            // Align to the obstacle
             wallAlign();
         }
 
-        // if loop exited, drive forwards to the finish
+        // If loop exited, drive forwards to the finish
         movementMode = DRIVE_TO_FINISH;
         break;
     }
     case SELECT_DIRECTION:
     {
-        // rotate to face the finish
+        // Rotate to face the finish
         rotateToFinish();
-        // take sensor measurements
+        // Take sensor measurements
         IRAveraging();
-        
-        // check to see what directions are clear 
+
+        // Check to see what directions are clear
         if (IROutputList[FRONT_IR] >= MAX_DIST_FROM_WALL)
         {
             canMoveForward = true;
@@ -406,29 +407,29 @@ void solveMaze()
             canMoveRight = false;
         }
 
-        // if there is room to move forward
+        // If there is room to move forward
         if (canMoveForward == true)
         {
-            // switch state to move forward towards the finish
+            // Switch state to move forward towards the finish
             movementMode = DRIVE_TO_FINISH;
             break;
         }
-        // if there is only room to move left
+        // If there is only room to move left
         else if ((canMoveLeft == true) & (canMoveRight == false))
         {
-            // go left
+            // Go left
             angleToRotate = -90;
         }
-        // if there is only room to move right
+        // If there is only room to move right
         else if ((canMoveLeft == false) & (canMoveRight == true))
         {
-            // go right
+            // Go right
             angleToRotate = 90;
         }
-        // if there is room to move left and right
+        // If there is room to move left and right
         else if ((canMoveLeft == true) & (canMoveRight == true))
         {
-            // move in the direction with the most space
+            // Move in the direction with the most space
             if (IROutputList[LEFT_IR] > IROutputList[RIGHT_IR])
             {
                 angleToRotate = -90;
@@ -438,21 +439,21 @@ void solveMaze()
                 angleToRotate = 90;
             }
         }
-        // if there isn't room to move left, right, or forwards
+        // If there isn't room to move left, right, or forwards
         else if ((canMoveLeft == false) & (canMoveRight == false))
         {
-            // run function to reverse and move out of dead end
+            // Run function to reverse and move out of dead end
             deadEndAvoid();
             break;
         }
-        // if turning direction is decided, switch state to follow along the obstacle in that direction
+        // If turning direction is decided, switch state to follow along the obstacle in that direction
         movementMode = FOLLOW_OBSTACLE;
         break;
     }
     }
 }
 
-// debugging function to output IR data to serial
+// Debugging function to output IR data to serial
 void IROutput()
 {
     Serial.println("IR:");

@@ -12,16 +12,20 @@ class Encoder
 {
 public:
     Encoder(PinName pinA, PinName pinB);
+    // Reset encoder count to 0
     void reset(void);
+    // return the calcualted distance from the encoder count
     float getDistance(void);
+    // return the count measured by the encoder
     long int getCount(void);
 
 private:
+    // ISR to be run when a pulse from pin A is received
     void countPulse(void);
 
     InterruptIn _pinA;
     InterruptIn _pinB;
-    
+
     volatile long int _count;
 };
 

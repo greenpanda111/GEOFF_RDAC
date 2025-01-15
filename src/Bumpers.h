@@ -7,16 +7,16 @@ using namespace mbed;
 #define GPIO_PIN_2 P0_28
 #define GPIO_PIN_3 P0_29
 
-// the bumper consists of two micro switches attached to the front of the robot
-// when either are pressed the robot will reverse
+// The bumper consists of two micro switches attached to the front of the robot
+// When either are pressed the robot will reverse
 class Bumper
 {
 public:
     Bumper(PinName left, PinName right);
     void setup(void);
     void avoid(void);
+
 private:
-    
     InterruptIn _left;
     InterruptIn _right;
 };

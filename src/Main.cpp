@@ -9,11 +9,11 @@ using namespace mbed;
 
 void setup()
 {
-  //set up the motor controller and motors
+  // Set up the motor controller and motors
   motorControl.setup();
-  //initialise the LED map and occupancy grid
+  // Initialise the LED map and occupancy grid
   mapSetup();
-  //reset robot position and set starting state
+  // Reset robot position and set starting state
   mazeSolverSetup();
 }
 
@@ -22,7 +22,7 @@ void loop()
   Serial.println("Loop Start --------------------------------");
 
   solveMaze();
-  
+
   wait_us(STD_DELAY);
 
   Serial.println();

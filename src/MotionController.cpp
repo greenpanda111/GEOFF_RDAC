@@ -23,8 +23,8 @@ Encoder leftEncoder(LEFT_ENCODER_A, LEFT_ENCODER_B);
 Encoder rightEncoder(RIGHT_ENCODER_A, RIGHT_ENCODER_B);
 
 // build motors and pass in encoder objects
-Motor leftMotor(Left_Motor_PWM, Left_Motor_Direction, LEFT_FORWARD, leftEncoder);
-Motor rightMotor(Right_Motor_PWM, Right_Motor_Direction, RIGHT_FORWARD, rightEncoder);
+Motor leftMotor(LEFT_MOTOR_PWM, LEFT_MOTOR_DIRECTION, LEFT_FORWARD, leftEncoder);
+Motor rightMotor(RIGHT_MOTOR_PWM, RIGHT_MOTOR_DIRECTION, RIGHT_FORWARD, rightEncoder);
 
 // build motorController object with motors
 MotionController motorControl(leftMotor, rightMotor);
